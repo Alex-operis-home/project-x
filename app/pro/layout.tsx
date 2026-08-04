@@ -1,5 +1,6 @@
 "use client";
 import { SpaceShell, NavItem } from "@/components/SpaceShell";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Gauge, Users, HardHat, Wallet, FileText, Zap, Bot } from "lucide-react";
 import { proUser } from "@/lib/mock-data";
 
@@ -15,8 +16,10 @@ const navItems: NavItem[] = [
 
 export default function ProSpaceLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SpaceShell spaceName="pro" spaceTag="Espace constructeur" navItems={navItems} userName={proUser.firstName}>
-      {children}
-    </SpaceShell>
+    <RequireAuth>
+      <SpaceShell spaceName="pro" spaceTag="Espace constructeur" navItems={navItems} userName={proUser.firstName}>
+        {children}
+      </SpaceShell>
+    </RequireAuth>
   );
 }

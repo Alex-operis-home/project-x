@@ -2,19 +2,19 @@ import Link from "next/link";
 
 const spaces = [
   {
-    href: "/home",
+    href: "/login",
     title: "Project X Home",
     audience: "Particulier",
     desc: "Suivre la construction de sa maison sans stress, étape par étape.",
   },
   {
-    href: "/pro",
+    href: "/login",
     title: "Project X Pro",
     audience: "Constructeur / entreprise du bâtiment",
     desc: "Piloter tous ses chantiers et protéger sa marge, sans rien laisser filer.",
   },
   {
-    href: "/promoteur",
+    href: "/login",
     title: "Project X Promoteur",
     audience: "Promoteur immobilier",
     desc: "Un directeur d'opération augmenté sur l'ensemble du portefeuille.",

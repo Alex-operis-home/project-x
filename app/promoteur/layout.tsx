@@ -1,5 +1,6 @@
 "use client";
 import { SpaceShell, NavItem } from "@/components/SpaceShell";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Briefcase, Building2, LineChart, ShoppingBag, ClipboardList, FileText, Bot } from "lucide-react";
 import { promoteurUser } from "@/lib/mock-data";
 
@@ -15,8 +16,10 @@ const navItems: NavItem[] = [
 
 export default function PromoteurSpaceLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SpaceShell spaceName="promoteur" spaceTag="Espace promoteur" navItems={navItems} userName={promoteurUser.firstName}>
-      {children}
-    </SpaceShell>
+    <RequireAuth>
+      <SpaceShell spaceName="promoteur" spaceTag="Espace promoteur" navItems={navItems} userName={promoteurUser.firstName}>
+        {children}
+      </SpaceShell>
+    </RequireAuth>
   );
 }

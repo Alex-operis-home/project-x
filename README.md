@@ -27,12 +27,34 @@ Toutes les pages fonctionnent immédiatement avec des **données de démonstrati
 
 Le plus simple : connecter le repo à **Vercel**, ajouter les deux variables d'environnement ci-dessus dans les settings du projet Vercel, déployer.
 
+## Authentification réelle
+
+Une page `/login` commune permet de choisir un espace puis de se connecter/créer un compte via Supabase Auth. Tant que `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY` ne sont pas renseignées, l'app reste en mode démo (accès libre, sans vraie auth) pour continuer à faire des démonstrations. Dès que ces variables sont ajoutées (localement dans `.env.local`, et sur Vercel dans Environment Variables), chaque espace (`/home`, `/pro`, `/promoteur`) exige une session valide — sinon redirection automatique vers `/login`.
+
+## Paiement
+
+Pas encore branché dans le code — deux options :
+1. **Rapide, sans code** : créer des Payment Links Stripe (dashboard Stripe, 5 min) pour chaque offre, et les poser en bouton sur les pages concernées.
+2. **Intégré** : Stripe Checkout via une route API Next.js (`app/api/checkout/route.ts` à créer), avec un webhook qui active l'accès du client automatiquement à la confirmation du paiement. Recommandé une fois les 3 espaces stabilisés — dites-le pour que ce soit ajouté au même rythme que Raymond et l'authentification.
+
+## Mobile
+
+Le menu latéral passe en tiroir (bouton ☰) sur les écrans étroits, et la barre Raymond s'adapte à la largeur de l'écran.
+
 ## Raymond
 
-L'assistant "Raymond" est câblé en façade (barre flottante + page dédiée par espace) avec des réponses de démonstration. Pour le rendre réellement intelligent, brancher un appel serveur (route API Next.js `app/api/raymond/route.ts` à créer) vers l'API Anthropic, en lui donnant en contexte les données du projet/chantier/opération concerné.
+Raymond est branché sur l'API Anthropic via la route serveur `app/api/raymond/route.ts` — il répond en s'appuyant sur les données de démo de chaque espace (`lib/mock-data.ts`).
+
+**Pour l'activer :**
+1. Créer un compte sur console.anthropic.com et générer une clé API ("API Keys" → "Create Key").
+2. En local : ajouter `ANTHROPIC_API_KEY=ta_clé` dans `.env.local`.
+3. Sur Vercel : Project Settings → Environment Variables → ajouter `ANTHROPIC_API_KEY` avec la même valeur → redéployer.
+
+Tant que la clé n'est pas renseignée, Raymond répond avec un message expliquant qu'il n'est pas encore branché (pas d'erreur bloquante).
+
+Étape suivante recommandée : remplacer les données de démo passées en contexte par de vraies requêtes Supabase, pour que Raymond réponde sur les projets réels de chaque client.
 
 ## Prochaines étapes techniques recommandées
-1. Authentification réelle (pages de connexion à créer par espace, sur le modèle Supabase Auth).
-2. Remplacer les tableaux `lib/mock-data.ts` par des requêtes Supabase (`lib/supabase/client.ts` déjà prêt).
-3. Paiement : Stripe Checkout ou Payment Links pour encaisser rapidement en attendant l'intégration complète.
-4. Route API `Raymond` connectée à l'API Anthropic avec le contexte du projet en cours.
+1. Remplacer les tableaux `lib/mock-data.ts` par des requêtes Supabase (`lib/supabase/client.ts` déjà prêt).
+2. Stripe Checkout intégré (au-delà des Payment Links) pour l'activation automatique des comptes payants.
+3. Étendre le contexte transmis à Raymond avec les vraies données Supabase.

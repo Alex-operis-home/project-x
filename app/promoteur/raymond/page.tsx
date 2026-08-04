@@ -13,15 +13,23 @@ export default function RaymondPromoteurPage() {
   const [messages, setMessages] = useState<Msg[]>(initial);
   const [value, setValue] = useState("");
 
-  function send(e: React.FormEvent) {
+  async function send(e: React.FormEvent) {
     e.preventDefault();
     if (!value.trim()) return;
-    setMessages((m) => [
-      ...m,
-      { from: "user", text: value },
-      { from: "raymond", text: "(démo) Ici Raymond appellerait l'API Claude/Anthropic pour répondre avec les données réelles du portefeuille." },
-    ]);
+    const question = value;
     setValue("");
+    setMessages((m) => [...m, { from: "user", text: question }]);
+    try {
+      const res = await fetch("/api/raymond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question, space: "promoteur" }),
+      });
+      const json = await res.json();
+      setMessages((m) => [...m, { from: "raymond", text: json.reply ?? "Raymond n'a pas pu répondre." }]);
+    } catch {
+      setMessages((m) => [...m, { from: "raymond", text: "Raymond est momentanément indisponible — réessaie dans un instant." }]);
+    }
   }
 
   return (

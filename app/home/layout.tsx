@@ -1,5 +1,6 @@
 "use client";
 import { SpaceShell, NavItem } from "@/components/SpaceShell";
+import { RequireAuth } from "@/components/RequireAuth";
 import { LayoutDashboard, Home as HomeIcon, Wallet, CalendarClock, FileText, Users2, Bot } from "lucide-react";
 import { homeUser } from "@/lib/mock-data";
 
@@ -15,8 +16,10 @@ const navItems: NavItem[] = [
 
 export default function HomeSpaceLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SpaceShell spaceName="home" spaceTag="Espace particulier" navItems={navItems} userName={homeUser.firstName}>
-      {children}
-    </SpaceShell>
+    <RequireAuth>
+      <SpaceShell spaceName="home" spaceTag="Espace particulier" navItems={navItems} userName={homeUser.firstName}>
+        {children}
+      </SpaceShell>
+    </RequireAuth>
   );
 }
