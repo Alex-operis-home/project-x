@@ -1,20 +1,21 @@
 import Link from "next/link";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 const spaces = [
   {
-    href: "/login",
+    key: "home",
     title: "Project X Home",
     audience: "Particulier",
     desc: "Suivre la construction de sa maison sans stress, étape par étape.",
   },
   {
-    href: "/login",
+    key: "pro",
     title: "Project X Pro",
     audience: "Constructeur / entreprise du bâtiment",
     desc: "Piloter tous ses chantiers et protéger sa marge, sans rien laisser filer.",
   },
   {
-    href: "/login",
+    key: "promoteur",
     title: "Project X Promoteur",
     audience: "Promoteur immobilier",
     desc: "Un directeur d'opération augmenté sur l'ensemble du portefeuille.",
@@ -29,13 +30,15 @@ export default function Home() {
           <div className="font-display text-2xl font-semibold mb-2">
             Project <span className="text-brand">X</span>
           </div>
-          <p className="text-ink-soft">Choisissez votre espace de démonstration.</p>
+          <p className="text-ink-soft">
+            {isSupabaseConfigured ? "Choisissez votre espace." : "Choisissez votre espace de démonstration."}
+          </p>
         </div>
         <div className="grid md:grid-cols-3 gap-5">
           {spaces.map((s) => (
             <Link
-              key={s.href}
-              href={s.href}
+              key={s.key}
+              href={isSupabaseConfigured ? "/login" : `/${s.key}`}
               className="group bg-surface border border-line rounded-xl2 shadow-card p-7 hover:shadow-floating hover:-translate-y-0.5 transition-all"
             >
               <div className="text-xs font-semibold text-brand uppercase tracking-wide mb-3">{s.audience}</div>
