@@ -1,0 +1,1387 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
+
+export function RequireAuth({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const [ready, setReady] = useState(!isSupabaseConfigured);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return; // mode démo : accès libre
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        router.push("/login");
+      } else {
+        setReady(true);
+      }
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) router.push("/login");
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, [router]);
+
+  if (!ready) return null;
+  return <>{children}</>;
+}
+
+export function ProgressRing({ value, label }: { value: number; label: string }) {
+  const radius = 72;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="relative w-[168px] h-[168px]">
+      <svg width="168" height="168" className="-rotate-90">
+        <circle cx="84" cy="84" r={radius} fill="none" stroke="#E6E4DD" strokeWidth="10" />
+        <circle
+          cx="84"
+          cy="84"
+          r={radius}
+          fill="none"
+          stroke="#C9A227"
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-display text-3xl font-semibold text-ink">{value}%</span>
+        <span className="text-xs text-ink-soft">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+import { HTMLAttributes } from "react";
+
+export function Card({ className = "", children, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={`bg-surface border border-line rounded-xl2 shadow-card p-6 ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function DataTable({
+  columns,
+  rows,
+}: {
+  columns: string[];
+  rows: (string | React.ReactNode)[][];
+}) {
+  return (
+    <div className="overflow-x-auto -mx-2">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left text-xs uppercase tracking-wide text-ink-soft border-b border-line">
+            {columns.map((c) => (
+              <th key={c} className="px-2 py-3 font-semibold">{c}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} className="border-b border-line last:border-0 hover:bg-canvas/60 transition-colors">
+              {row.map((cell, j) => (
+                <td key={j} className="px-2 py-3.5">{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function ProgressBar({ value, color = "brand" }: { value: number; color?: "brand" | "gold" }) {
+  const bar = color === "gold" ? "bg-gold" : "bg-brand";
+  return (
+    <div className="h-1.5 w-full rounded-full bg-line overflow-hidden">
+      <div className={`h-full ${bar} rounded-full transition-all`} style={{ width: `${value}%` }} />
+    </div>
+  );
+}
+
+export function StatCard({
+  label,
+  value,
+  hint,
+  hintTone = "neutral",
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  hintTone?: "up" | "down" | "neutral";
+}) {
+  const hintColor =
+    hintTone === "up" ? "text-signal-green" : hintTone === "down" ? "text-signal-red" : "text-ink-soft";
+  return (
+    <div className="bg-surface border border-line rounded-xl2 shadow-card p-6">
+      <div className="text-sm text-ink-soft mb-2">{label}</div>
+      <div className="font-display text-3xl font-semibold text-ink">{value}</div>
+      {hint && <div className={`text-xs mt-2 ${hintColor}`}>{hint}</div>}
+    </div>
+  );
+}
+
+export type AlertLevel = "rouge" | "orange" | "vert";
+
+const styles: Record<AlertLevel, string> = {
+  rouge: "bg-signal-red-soft text-signal-red",
+  orange: "bg-signal-orange-soft text-signal-orange",
+  vert: "bg-signal-green-soft text-signal-green",
+};
+
+const dotColor: Record<AlertLevel, string> = {
+  rouge: "bg-signal-red",
+  orange: "bg-signal-orange",
+  vert: "bg-signal-green",
+};
+
+export function AlertBadge({
+  level,
+  label,
+  pulse = false,
+}: {
+  level: AlertLevel;
+  label?: string;
+  pulse?: boolean;
+}) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${styles[level]}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${dotColor[level]} ${pulse ? "animate-pulse-dot" : ""}`} />
+      {label}
+    </span>
+  );
+}
+
+"use client";
+import { useState } from "react";
+
+type SpaceKey = "home" | "pro" | "promoteur";
+
+export function RaymondBar({ space = "home" }: { space?: SpaceKey }) {
+  const [value, setValue] = useState("");
+  const [reply, setReply] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleAsk(e: React.FormEvent) {
+    e.preventDefault();
+    if (!value.trim() || loading) return;
+    const question = value;
+    setValue("");
+    setLoading(true);
+    setReply(null);
+    try {
+      const res = await fetch("/api/raymond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question, space }),
+      });
+      const json = await res.json();
+      setReply(json.reply ?? "Raymond n'a pas pu répondre.");
+    } catch {
+      setReply("Raymond est momentanément indisponible — réessaie dans un instant.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 md:left-[260px] z-20">
+      {reply && (
+        <div className="mx-4 md:mx-6 mb-2 max-w-2xl bg-ink text-white text-sm leading-relaxed rounded-xl p-4 shadow-floating relative">
+          <button onClick={() => setReply(null)} className="absolute top-2 right-3 text-white/50 hover:text-white text-xs">✕</button>
+          <span className="text-brand font-semibold">Raymond — </span>
+          {reply}
+        </div>
+      )}
+      <form
+        onSubmit={handleAsk}
+        className="flex items-center gap-3 border-t border-line bg-surface/95 backdrop-blur px-4 md:px-6 py-3.5 shadow-[0_-8px_24px_rgba(18,24,31,0.06)]"
+      >
+        <div className="flex items-center justify-center w-9 h-9 rounded-full bg-brand-soft text-brand font-display font-semibold text-sm flex-shrink-0">
+          R
+        </div>
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={loading ? "Raymond réfléchit…" : "Demander à Raymond…"}
+          disabled={loading}
+          className="flex-1 bg-transparent outline-none text-sm placeholder:text-ink-soft"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-ink text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50"
+        >
+          {loading ? "…" : "Envoyer"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export function RaymondCard({
+  userName,
+  intro,
+  bullets,
+}: {
+  userName: string;
+  intro: string;
+  bullets: string[];
+}) {
+  return (
+    <div className="bg-ink text-white rounded-xl2 shadow-floating p-6 relative overflow-hidden">
+      <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-brand/30 blur-3xl pointer-events-none" />
+      <div className="flex items-start gap-4 relative">
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand font-display font-semibold flex-shrink-0">
+          R
+        </div>
+        <div className="flex-1">
+          <p className="font-display text-lg leading-snug">
+            Salut {userName} 👋
+            <br />
+            {intro}
+          </p>
+          <ul className="mt-4 space-y-2">
+            {bullets.map((b) => (
+              <li key={b} className="text-sm text-white/80 flex gap-2">
+                <span className="text-brand">→</span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, X } from "lucide-react";
+import { RaymondBar } from "./RaymondBar";
+import { supabase } from "@/lib/supabase/client";
+import type { LucideIcon } from "lucide-react";
+
+export type NavItem = { label: string; href: string; icon: LucideIcon };
+
+export function SpaceShell({
+  spaceName,
+  spaceTag,
+  navItems,
+  userName,
+  children,
+}: {
+  spaceName: "home" | "pro" | "promoteur";
+  spaceTag: string;
+  navItems: NavItem[];
+  userName: string;
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen md:grid md:grid-cols-[260px_1fr]">
+      {/* Barre mobile */}
+      <div className="md:hidden sticky top-0 z-30 flex items-center justify-between bg-ink text-white px-4 py-3.5">
+        <div className="font-display text-base font-semibold">
+          Project <span className="text-brand">X</span>
+        </div>
+        <button onClick={() => setOpen(true)} aria-label="Ouvrir le menu">
+          <Menu size={22} />
+        </button>
+      </div>
+
+      {/* Fond assombri quand le menu mobile est ouvert */}
+      {open && (
+        <div className="md:hidden fixed inset-0 bg-black/40 z-40" onClick={() => setOpen(false)} />
+      )}
+
+      {/* Sidebar : tiroir sur mobile, fixe sur desktop */}
+      <aside
+        className={`bg-ink text-white flex flex-col gap-8 px-6 py-8 fixed h-screen w-[260px] z-50 transition-transform duration-200
+        ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="font-display text-lg font-semibold">
+              Project <span className="text-brand">X</span>
+            </div>
+            <div className="text-xs text-white/50 mt-0.5">{spaceTag}</div>
+          </div>
+          <button className="md:hidden" onClick={() => setOpen(false)} aria-label="Fermer le menu">
+            <X size={20} />
+          </button>
+        </div>
+        <nav className="flex flex-col gap-1">
+          {navItems.map((item) => {
+            const active = pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  active ? "bg-white/10 text-white" : "text-white/65 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Icon size={16} strokeWidth={2} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="mt-auto space-y-2">
+          <Link href="/" className="block text-xs text-white/45 hover:text-white/80 transition-colors">
+            ← Changer d'espace
+          </Link>
+          <button
+            onClick={async () => {
+              if (supabase) await supabase.auth.signOut();
+              router.push("/login");
+            }}
+            className="text-xs text-white/45 hover:text-white/80 transition-colors"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </aside>
+
+      <main className="md:col-start-2 px-4 py-6 md:px-10 md:py-9 pb-32 max-w-[1240px]">
+        {children}
+      </main>
+
+      {!pathname.endsWith("/raymond") && <RaymondBar space={spaceName} />}
+    </div>
+  );
+}
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+// En mode démo (variables d'environnement absentes), l'app tourne uniquement
+// sur les données d'exemple (lib/mock-data.ts) — utile pour les rendez-vous
+// clients avant que Supabase ne soit branché.
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
+
+-- =========================================================
+-- PROJECT X — Schéma Supabase (Home / Pro / Promoteur)
+-- =========================================================
+create extension if not exists "uuid-ossp";
+
+create table if not exists profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  space text not null check (space in ('home', 'pro', 'promoteur')),
+  full_name text,
+  company_name text,
+  created_at timestamptz default now()
+);
+alter table profiles enable row level security;
+create policy "profil visible par son propriétaire" on profiles for select using (auth.uid() = id);
+create policy "profil modifiable par son propriétaire" on profiles for update using (auth.uid() = id);
+create policy "profil créé par son propriétaire" on profiles for insert with check (auth.uid() = id);
+
+-- Un "projet" = une maison (Home), un chantier (Pro) ou une opération (Promoteur)
+create table if not exists projects (
+  id uuid primary key default uuid_generate_v4(),
+  owner_id uuid references profiles(id) on delete cascade,
+  space text not null check (space in ('home', 'pro', 'promoteur')),
+  name text not null,
+  client_name text,
+  address text,
+  budget_planned numeric default 0,
+  budget_spent numeric default 0,
+  progress int default 0,
+  status text default 'actif',
+  created_at timestamptz default now()
+);
+alter table projects enable row level security;
+create policy "voir ses projets" on projects for select using (auth.uid() = owner_id);
+create policy "gérer ses projets" on projects for all using (auth.uid() = owner_id);
+
+create table if not exists alerts (
+  id uuid primary key default uuid_generate_v4(),
+  project_id uuid references projects(id) on delete cascade,
+  level text not null check (level in ('vert', 'orange', 'rouge')),
+  title text not null,
+  detail text,
+  resolved boolean default false,
+  created_at timestamptz default now()
+);
+alter table alerts enable row level security;
+create policy "voir les alertes de ses projets" on alerts for select using (
+  project_id in (select id from projects where owner_id = auth.uid())
+);
+
+create table if not exists documents (
+  id uuid primary key default uuid_generate_v4(),
+  project_id uuid references projects(id) on delete cascade,
+  name text not null,
+  category text,
+  status text default 'manquant',
+  file_url text,
+  created_at timestamptz default now()
+);
+alter table documents enable row level security;
+create policy "voir les documents de ses projets" on documents for select using (
+  project_id in (select id from projects where owner_id = auth.uid())
+);
+
+create table if not exists tasks (
+  id uuid primary key default uuid_generate_v4(),
+  project_id uuid references projects(id) on delete cascade,
+  title text not null,
+  done boolean default false,
+  due_date date,
+  created_at timestamptz default now()
+);
+alter table tasks enable row level security;
+create policy "voir les tâches de ses projets" on tasks for select using (
+  project_id in (select id from projects where owner_id = auth.uid())
+);
+
+// Liens de paiement Stripe — mode test.
+// Basculer vers les liens "live" (dashboard Stripe, compte passé en production)
+// une fois prêt à encaisser réellement.
+export const stripeLinks = {
+  homeAbonnement: "https://buy.stripe.com/test_14AeVd2Cy40j0qHdRmffy00", // 29€/mois
+  homeForfait: "https://buy.stripe.com/test_4gM4gzgto9kDgpFfZuffy01", // 299€
+  homePremium: "https://buy.stripe.com/test_28EbJ11yu8gz5L1eVqffy02", // 349€
+  proClientProjet: "https://buy.stripe.com/test_fZu4gz1yu40j3CTcNiffy03", // 300€
+};
+
+import type { Alert, Doc, Task } from "./types";
+
+// ===================== ESPACE HOME (particulier) =====================
+export const homeUser = { firstName: "Julie" };
+
+export const homeProject = {
+  name: "Maison Julie & Marc",
+  address: "12 Chemin des Tilleuls, 33170 Gradignan",
+  builder: "Constructions Dupont",
+  startDate: "3 mars 2026",
+  progress: 42,
+  step: "Second œuvre",
+  nextStep: {
+    title: "Réception des fondations",
+    deadline: "12 septembre 2026",
+    advice: "Votre maçon doit vous inviter à valider les fondations avant de couler la dalle. C'est le moment de vérifier deux points essentiels avant de donner votre accord.",
+  },
+};
+
+export const homeBudget = {
+  planned: 245000,
+  spent: 138400,
+  remaining: 106600,
+};
+
+export const homeAlerts: Alert[] = [
+  { id: "1", level: "rouge", title: "Attestation décennale manquante", detail: "Conseil du fondateur : ne jamais couler de dalle sans l'attestation en cours de validité en main." },
+  { id: "2", level: "orange", title: "Appel de fonds n°4 à régler", detail: "Échéance dans 5 jours — un retard de paiement peut décaler tout le planning du chantier." },
+  { id: "3", level: "vert", title: "Isolation posée", detail: "Conforme au DTU, rien à signaler." },
+];
+
+// Frise imagée du prototype Opéris — vision simplifiée et rassurante du chantier
+export const homeFrise = [
+  { icon: "🌱", label: "Terrain", done: true },
+  { icon: "🧱", label: "Fondations", done: true },
+  { icon: "🧱", label: "Murs", done: true },
+  { icon: "🏗️", label: "Charpente", done: false, current: true },
+  { icon: "🪟", label: "Menuiseries", done: false },
+  { icon: "🎨", label: "Finitions", done: false },
+  { icon: "🔑", label: "Remise des clés", done: false },
+];
+
+export const homeTasks: Task[] = [
+  { id: "1", title: "Transmettre le RIB pour l'appel de fonds", done: false, due: "5 sept." },
+  { id: "2", title: "Valider le choix des menuiseries", done: false, due: "10 sept." },
+  { id: "3", title: "Relire le compte-rendu de chantier", done: true },
+];
+
+export const homeDocuments: Doc[] = [
+  { id: "1", name: "Permis de construire", category: "Permis", status: "conforme" },
+  { id: "2", name: "Devis lot menuiseries", category: "Devis", status: "conforme" },
+  { id: "3", name: "Contrat de construction (CCMI)", category: "Contrats", status: "conforme" },
+  { id: "4", name: "Attestation décennale maçon", category: "Assurances", status: "manquant" },
+  { id: "5", name: "Plans d'exécution", category: "Plans", status: "conforme" },
+];
+
+export const homeStakeholders = [
+  { name: "Constructions Dupont", role: "Constructeur", phone: "05 56 00 00 00" },
+  { name: "Cabinet Lenoir", role: "Architecte", phone: "05 56 11 11 11" },
+  { name: "SARL Petit Frères", role: "Maçonnerie", phone: "05 56 22 22 22" },
+  { name: "Électricité Moreau", role: "Électricien", phone: "05 56 33 33 33" },
+];
+
+export const homePlanning = [
+  { step: "Terrain", status: "done" },
+  { step: "Financement", status: "done" },
+  { step: "Permis de construire", status: "done" },
+  { step: "Ouverture de chantier", status: "done" },
+  { step: "Gros œuvre", status: "done" },
+  { step: "Second œuvre", status: "current" },
+  { step: "Finitions", status: "todo" },
+  { step: "Réception", status: "todo" },
+  { step: "Livraison", status: "todo" },
+];
+
+// ===================== ESPACE PRO (constructeur) =====================
+export const proUser = { firstName: "Alexandre" };
+
+export const proStats = {
+  chantiers: 25,
+  alertesImportantes: 3,
+  caPrevisionnel: "6 240 000 €",
+  margeMoyenne: "16,8 %",
+};
+
+export const proAlerts: Alert[] = [
+  { id: "1", level: "rouge", title: "Chantier Martin : retard fournisseur", detail: "Livraison charpente décalée de 3 semaines." },
+  { id: "2", level: "rouge", title: "Client Dupont : document manquant", detail: "Attestation décennale non transmise." },
+  { id: "3", level: "orange", title: "Budget chantier Lefort : dépassement probable", detail: "Second œuvre +6% vs devis initial." },
+];
+
+export const proClients = [
+  { name: "Famille Martin", project: "Maison à Mérignac", step: "Charpente", level: "rouge" as const },
+  { name: "Famille Dupont", project: "Maison à Pessac", step: "Gros œuvre", level: "rouge" as const },
+  { name: "Famille Lefort", project: "Maison à Talence", step: "Second œuvre", level: "orange" as const },
+  { name: "Famille Girard", project: "Maison à Cenon", step: "Finitions", level: "vert" as const },
+  { name: "Famille Roux", project: "Maison à Bègles", step: "Fondations", level: "vert" as const },
+];
+
+export const proChantiers = proClients.map((c, i) => ({
+  ...c,
+  progress: [58, 44, 62, 88, 15][i],
+  coutPrevu: [245000, 268000, 231000, 252000, 239000][i],
+  coutReel: [201000, 178000, 210000, 233000, 38000][i],
+}));
+
+export const proTasksAuto = [
+  "Relance client Dupont — document manquant",
+  "Compte rendu hebdomadaire — Chantier Lefort",
+  "Mail fournisseur — confirmation nouvelle date charpente",
+];
+
+// ===================== ESPACE PROMOTEUR =====================
+export const promoteurUser = { firstName: "Sophie" };
+
+export const promoteurStats = {
+  operations: 9,
+  caPrevisionnel: "14 200 000 €",
+  margeMoyenne: "21,6 %",
+  alertes: 3,
+};
+
+export const promoteurAlerts: Alert[] = [
+  { id: "1", level: "rouge", title: "Retard VRD — Lotissement Val Fleuri", detail: "Impact planning estimé : 6 semaines." },
+  { id: "2", level: "rouge", title: "Dépassement budget lot 4 — Les Ateliers", detail: "Écart de +180 000 € vs budget initial." },
+  { id: "3", level: "orange", title: "Garantie financière d'achèvement à renouveler", detail: "Échéance le 14 septembre 2026." },
+];
+
+export const promoteurOperations = [
+  { name: "Les Terrasses du Lac", type: "Promotion — 42 lots", status: "Commercialisation", progress: 68, engage: "3,1 M€", budget: "4,4 M€", level: "vert" as const },
+  { name: "Lotissement Val Fleuri", type: "Aménagement — 18 lots", status: "Travaux VRD", progress: 45, engage: "1,2 M€", budget: "2,0 M€", level: "orange" as const },
+  { name: "Résidence Les Cèdres", type: "Promotion — 30 lots", status: "Permis purgé", progress: 20, engage: "0,4 M€", budget: "3,8 M€", level: "vert" as const },
+  { name: "Programme Les Ateliers", type: "MOD — équipement public", status: "Gros œuvre", progress: 55, engage: "2,7 M€", budget: "5,1 M€", level: "rouge" as const },
+];
+
+export const promoteurLots = [
+  { operation: "Les Terrasses du Lac", total: 42, reserves: 22, vendus: 18, disponibles: 2 },
+  { operation: "Résidence Les Cèdres", total: 30, reserves: 4, vendus: 0, disponibles: 26 },
+];
+
+export const promoteurAdmin = [
+  { item: "Permis de construire — Les Ateliers", status: "conforme" as const },
+  { item: "Acte notarié — Val Fleuri", status: "conforme" as const },
+  { item: "Garantie bancaire — Les Cèdres", status: "manquant" as const },
+  { item: "Convention partenaire foncier", status: "conforme" as const },
+];
+
+"use client";
+import { useEffect, useState } from "react";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
+
+export function useDisplayName(fallback: string): string {
+  const [name, setName] = useState(fallback);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return; // mode démo : garde le nom fictif
+    supabase.auth.getUser().then(({ data }) => {
+      const fullName = data.user?.user_metadata?.full_name as string | undefined;
+      const firstName = fullName?.split(" ")[0];
+      if (firstName) setName(firstName);
+      else if (data.user?.email) setName(data.user.email.split("@")[0]);
+    });
+  }, [fallback]);
+
+  return name;
+}
+
+export type AlertLevel = "vert" | "orange" | "rouge";
+
+export type Alert = {
+  id: string;
+  level: AlertLevel;
+  title: string;
+  detail: string;
+};
+
+export type Doc = {
+  id: string;
+  name: string;
+  category: string;
+  status: "conforme" | "manquant" | "bloquant";
+};
+
+export type Task = {
+  id: string;
+  title: string;
+  done: boolean;
+  due?: string;
+};
+
+# Copier ce fichier en .env.local et renseigner les valeurs
+# (Supabase > Project Settings > API)
+
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+/node_modules
+/.next/
+/out/
+.env.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+};
+
+module.exports = nextConfig;
+
+{
+  "name": "project-x",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@supabase/supabase-js": "^2.45.0",
+    "lucide-react": "^0.400.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/react": "^18.3.0",
+    "@types/node": "^20.14.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
+  }
+}
+
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+
+# Project X — MVP commercial (Home / Pro / Promoteur)
+
+Nom temporaire en attendant validation juridique du nom définitif.
+
+## Démarrer en local
+
+```bash
+npm install
+npm run dev
+```
+
+Ouvre http://localhost:3000 — un écran de sélection permet de basculer entre les 3 espaces :
+- `/home` — particulier
+- `/pro` — constructeur
+- `/promoteur` — promoteur
+
+Toutes les pages fonctionnent immédiatement avec des **données de démonstration réalistes** (`lib/mock-data.ts`) — idéal pour un rendez-vous client, avant même de brancher Supabase.
+
+## Brancher Supabase (auth + données réelles)
+
+1. Créer un projet sur supabase.com.
+2. SQL Editor → coller `lib/supabase/schema.sql` → Run.
+3. Copier `.env.local.example` en `.env.local` et renseigner `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings > API).
+4. Redémarrer `npm run dev` — l'app est alors prête à utiliser l'authentification Supabase réelle (le câblage des formulaires de connexion et le remplacement des données de démo par de vraies requêtes reste à faire page par page, en s'appuyant sur `lib/supabase/client.ts`).
+
+## Déploiement
+
+Le plus simple : connecter le repo à **Vercel**, ajouter les deux variables d'environnement ci-dessus dans les settings du projet Vercel, déployer.
+
+## Authentification réelle
+
+Une page `/login` commune permet de choisir un espace puis de se connecter/créer un compte via Supabase Auth. Tant que `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY` ne sont pas renseignées, l'app reste en mode démo (accès libre, sans vraie auth) pour continuer à faire des démonstrations. Dès que ces variables sont ajoutées (localement dans `.env.local`, et sur Vercel dans Environment Variables), chaque espace (`/home`, `/pro`, `/promoteur`) exige une session valide — sinon redirection automatique vers `/login`.
+
+## Paiement
+
+Boutons Stripe déjà intégrés (`lib/stripe-links.ts`) : abonnement Home 29€/mois, forfait Home 299€, forfait Premium 349€ sur le dashboard Home ; ajout client 300€ sur le dashboard Pro. **Ces liens sont en mode test** (`buy.stripe.com/test_...`) — aucun paiement réel n'est débité. Pour encaisser réellement :
+1. Basculer le compte Stripe en mode production (bouton "Activate account" / toggle Test-Live sur le dashboard Stripe), renseigner les infos légales/bancaires.
+2. Recréer les mêmes Payment Links en mode "live" (même procédure).
+3. Remplacer les URLs dans `lib/stripe-links.ts` par les nouveaux liens live.
+
+Étape suivante recommandée pour aller plus loin : Stripe Checkout via une route API Next.js avec webhook, pour activer automatiquement le compte du client à la confirmation du paiement (au lieu d'une activation manuelle après réception du paiement via Payment Link).
+
+## Mobile
+
+Le menu latéral passe en tiroir (bouton ☰) sur les écrans étroits, et la barre Raymond s'adapte à la largeur de l'écran.
+
+## Raymond
+
+Raymond est branché sur l'API Anthropic via la route serveur `app/api/raymond/route.ts` — il répond en s'appuyant sur les données de démo de chaque espace (`lib/mock-data.ts`).
+
+**Pour l'activer :**
+1. Créer un compte sur console.anthropic.com et générer une clé API ("API Keys" → "Create Key").
+2. En local : ajouter `ANTHROPIC_API_KEY=ta_clé` dans `.env.local`.
+3. Sur Vercel : Project Settings → Environment Variables → ajouter `ANTHROPIC_API_KEY` avec la même valeur → redéployer.
+
+Tant que la clé n'est pas renseignée, Raymond répond avec un message expliquant qu'il n'est pas encore branché (pas d'erreur bloquante).
+
+Étape suivante recommandée : remplacer les données de démo passées en contexte par de vraies requêtes Supabase, pour que Raymond réponde sur les projets réels de chaque client.
+
+## Prochaines étapes techniques recommandées
+1. Remplacer les tableaux `lib/mock-data.ts` par des requêtes Supabase (`lib/supabase/client.ts` déjà prêt).
+2. Stripe Checkout intégré (au-delà des Payment Links) pour l'activation automatique des comptes payants.
+3. Étendre le contexte transmis à Raymond avec les vraies données Supabase.
+
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./app/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        ink: "#12181F",
+        "ink-soft": "#57626F",
+        canvas: "#F7F7F5",
+        surface: "#FFFFFF",
+        line: "#E6E4DD",
+        brand: {
+          DEFAULT: "#2451B5",
+          soft: "#E9EFFB",
+          dark: "#173C8C",
+        },
+        gold: {
+          DEFAULT: "#C9A227",
+          soft: "#FAF3DD",
+        },
+        signal: {
+          green: "#2E8B57",
+          "green-soft": "#E6F2EB",
+          orange: "#D98A3D",
+          "orange-soft": "#FBEEDF",
+          red: "#C0463C",
+          "red-soft": "#F8E6E4",
+        },
+      },
+      fontFamily: {
+        display: ["var(--font-display)"],
+        sans: ["var(--font-sans)"],
+        mono: ["var(--font-mono)"],
+      },
+      borderRadius: {
+        xl2: "18px",
+      },
+      boxShadow: {
+        card: "0 2px 10px rgba(18, 24, 31, 0.05)",
+        floating: "0 16px 40px rgba(18, 24, 31, 0.12)",
+      },
+      keyframes: {
+        pulseDot: {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.55", transform: "scale(0.85)" },
+        },
+        fadeUp: {
+          "0%": { opacity: "0", transform: "translateY(6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "pulse-dot": "pulseDot 1.8s ease-in-out infinite",
+        "fade-up": "fadeUp 0.4s ease-out both",
+      },
+    },
+  },
+  plugins: [],
+};
+export default config;
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
+    "paths": { "@/*": ["./*"] }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Space Grotesk", ui-sans-serif, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html, body {
+  background-color: #F7F7F5;
+  color: #12181F;
+}
+
+* { box-sizing: border-box; }
+
+::selection {
+  background-color: #E9EFFB;
+  color: #12181F;
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #E6E4DD; border-radius: 4px; }
+
+"use client";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+
+type Msg = { from: "raymond" | "user"; text: string };
+
+const initial: Msg[] = [
+  { from: "raymond", text: "Salut Sophie 👋 J'ai passé en revue vos 9 opérations." },
+  { from: "raymond", text: "Deux points de vigilance : le retard VRD sur Val Fleuri qui menace le planning de 6 semaines, et un dépassement de budget sur le lot 4 des Ateliers." },
+];
+
+export default function RaymondPromoteurPage() {
+  const [messages, setMessages] = useState<Msg[]>(initial);
+  const [value, setValue] = useState("");
+
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    if (!value.trim()) return;
+    const question = value;
+    setValue("");
+    setMessages((m) => [...m, { from: "user", text: question }]);
+    try {
+      const res = await fetch("/api/raymond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question, space: "promoteur" }),
+      });
+      const json = await res.json();
+      setMessages((m) => [...m, { from: "raymond", text: json.reply ?? "Raymond n'a pas pu répondre." }]);
+    } catch {
+      setMessages((m) => [...m, { from: "raymond", text: "Raymond est momentanément indisponible — réessaie dans un instant." }]);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Raymond</h1>
+      <Card className="flex flex-col h-[520px]">
+        <div className="flex-1 overflow-y-auto space-y-4 scrollbar-thin pr-2">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.from === "user" ? "bg-brand text-white" : "bg-canvas text-ink"}`}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+        </div>
+        <form onSubmit={send} className="mt-4 flex gap-2 border-t border-line pt-4">
+          <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="Écris à Raymond…" className="flex-1 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-brand" />
+          <button className="bg-ink text-white text-sm font-semibold px-4 py-2 rounded-lg">Envoyer</button>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
+import { Card } from "@/components/ui/Card";
+import { promoteurAdmin } from "@/lib/mock-data";
+
+export default function AdministratifPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Administratif</h1>
+      <Card>
+        <div className="space-y-3">
+          {promoteurAdmin.map((a) => (
+            <div key={a.item} className="flex items-center justify-between py-2 border-b border-line last:border-0">
+              <span className="text-sm font-medium">{a.item}</span>
+              <span
+                className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                  a.status === "conforme" ? "bg-signal-green-soft text-signal-green" : "bg-signal-orange-soft text-signal-orange"
+                }`}
+              >
+                {a.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+"use client";
+import { Card } from "@/components/ui/Card";
+import { StatCard } from "@/components/ui/Stat";
+import { AlertBadge } from "@/components/ui/AlertBadge";
+import { RaymondCard } from "@/components/RaymondCard";
+import { useDisplayName } from "@/lib/useDisplayName";
+import { promoteurUser, promoteurStats, promoteurAlerts, promoteurOperations } from "@/lib/mock-data";
+
+export default function PromoteurDashboard() {
+  const name = useDisplayName(promoteurUser.firstName);
+  return (
+    <div className="space-y-6 animate-fade-up">
+      <div>
+        <h1 className="font-display text-2xl font-semibold">Salut {name} 👋</h1>
+        <p className="text-ink-soft mt-1">Voici l'état de votre portefeuille d'opérations aujourd'hui.</p>
+      </div>
+
+      <div className="grid sm:grid-cols-4 gap-5">
+        <StatCard label="Opérations actives" value={String(promoteurStats.operations)} />
+        <StatCard label="CA prévisionnel" value={promoteurStats.caPrevisionnel} />
+        <StatCard label="Marge moyenne" value={promoteurStats.margeMoyenne} hintTone="up" />
+        <StatCard label="Opérations en alerte" value={String(promoteurStats.alertes)} hintTone="down" hint="à traiter" />
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-5">
+        <Card className="md:col-span-2">
+          <h3 className="font-semibold mb-4">Alertes portefeuille</h3>
+          <div className="space-y-3">
+            {promoteurAlerts.map((a) => (
+              <div key={a.id} className="flex items-start gap-2.5">
+                <AlertBadge level={a.level} pulse={a.level === "rouge"} />
+                <div className="text-sm">
+                  <div className="font-medium leading-snug">{a.title}</div>
+                  <div className="text-ink-soft text-xs mt-0.5">{a.detail}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <RaymondCard
+          userName={name}
+          intro="J'ai passé en revue vos 9 opérations."
+          bullets={[
+            "Val Fleuri : retard VRD à anticiper",
+            "Les Ateliers : dépassement budget lot 4",
+            "Garantie financière à renouveler avant le 14/09",
+          ]}
+        />
+      </div>
+
+      <Card>
+        <h3 className="font-semibold mb-4">Vos opérations</h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {promoteurOperations.map((o) => (
+            <div key={o.name} className="border border-line rounded-lg p-4">
+              <div className="flex justify-between items-start mb-1.5">
+                <span className="font-medium text-sm">{o.name}</span>
+                <AlertBadge level={o.level} />
+              </div>
+              <div className="text-xs text-ink-soft">{o.type}</div>
+              <div className="text-xs text-ink-soft">{o.status} — {o.progress}%</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+import { Card } from "@/components/ui/Card";
+import { promoteurLots } from "@/lib/mock-data";
+
+export default function CommercialisationPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Commercialisation</h1>
+      <div className="grid sm:grid-cols-2 gap-5">
+        {promoteurLots.map((l) => (
+          <Card key={l.operation}>
+            <h3 className="font-semibold mb-4">{l.operation}</h3>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <div className="font-display text-2xl font-semibold text-signal-green">{l.vendus}</div>
+                <div className="text-xs text-ink-soft">Vendus</div>
+              </div>
+              <div>
+                <div className="font-display text-2xl font-semibold text-gold">{l.reserves}</div>
+                <div className="text-xs text-ink-soft">Réservés</div>
+              </div>
+              <div>
+                <div className="font-display text-2xl font-semibold text-ink-soft">{l.disponibles}</div>
+                <div className="text-xs text-ink-soft">Disponibles</div>
+              </div>
+            </div>
+            <div className="text-xs text-ink-soft mt-4 text-center">{l.total} lots au total</div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+import { Card } from "@/components/ui/Card";
+import { StatCard } from "@/components/ui/Stat";
+import { DataTable } from "@/components/ui/DataTable";
+import { promoteurOperations } from "@/lib/mock-data";
+
+export default function FinancierPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Financier</h1>
+      <div className="grid sm:grid-cols-3 gap-5">
+        <StatCard label="Trésorerie disponible" value="2 340 000 €" />
+        <StatCard label="Encours bancaire" value="6 800 000 €" />
+        <StatCard label="Appels de fonds à émettre" value="4" />
+      </div>
+      <Card>
+        <h3 className="font-semibold mb-4">Budget par opération</h3>
+        <DataTable
+          columns={["Opération", "Budget engagé", "Budget total"]}
+          rows={promoteurOperations.map((o) => [o.name, o.engage, o.budget])}
+        />
+      </Card>
+    </div>
+  );
+}
+
+import { Card } from "@/components/ui/Card";
+import { ProgressBar } from "@/components/ui/Stat";
+import { AlertBadge } from "@/components/ui/AlertBadge";
+import { promoteurOperations } from "@/lib/mock-data";
+
+export default function OperationsPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Opérations</h1>
+      <div className="grid sm:grid-cols-2 gap-5">
+        {promoteurOperations.map((o) => (
+          <Card key={o.name}>
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <div className="font-medium">{o.name}</div>
+                <div className="text-xs text-ink-soft">{o.type}</div>
+              </div>
+              <AlertBadge level={o.level} pulse={o.level === "rouge"} />
+            </div>
+            <ProgressBar value={o.progress} />
+            <div className="flex justify-between text-xs text-ink-soft mt-2">
+              <span>{o.status}</span>
+              <span>{o.engage} / {o.budget}</span>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+"use client";
+import { SpaceShell, NavItem } from "@/components/SpaceShell";
+import { RequireAuth } from "@/components/RequireAuth";
+import { Briefcase, Building2, LineChart, ShoppingBag, ClipboardList, FileText, Bot } from "lucide-react";
+import { promoteurUser } from "@/lib/mock-data";
+
+const navItems: NavItem[] = [
+  { label: "Vue portefeuille", href: "/promoteur", icon: Briefcase },
+  { label: "Opérations", href: "/promoteur/operations", icon: Building2 },
+  { label: "Financier", href: "/promoteur/financier", icon: LineChart },
+  { label: "Commercialisation", href: "/promoteur/commercialisation", icon: ShoppingBag },
+  { label: "Administratif", href: "/promoteur/administratif", icon: ClipboardList },
+  { label: "Documents", href: "/promoteur/documents", icon: FileText },
+  { label: "Raymond", href: "/promoteur/raymond", icon: Bot },
+];
+
+export default function PromoteurSpaceLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <RequireAuth>
+      <SpaceShell spaceName="promoteur" spaceTag="Espace promoteur" navItems={navItems} userName={promoteurUser.firstName}>
+        {children}
+      </SpaceShell>
+    </RequireAuth>
+  );
+}
+
+import { Card } from "@/components/ui/Card";
+import { DataTable } from "@/components/ui/DataTable";
+import { homeDocuments } from "@/lib/mock-data";
+
+const statusStyle: Record<string, string> = {
+  conforme: "bg-signal-green-soft text-signal-green",
+  manquant: "bg-signal-orange-soft text-signal-orange",
+  bloquant: "bg-signal-red-soft text-signal-red",
+};
+
+export default function DocumentsPromoteurPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Documents</h1>
+      <Card>
+        <p className="text-sm text-ink-soft mb-4">Documents transverses, toutes opérations confondues.</p>
+        <DataTable
+          columns={["Document", "Catégorie", "Statut"]}
+          rows={homeDocuments.map((d) => [
+            d.name,
+            d.category,
+            <span key={d.id} className={`text-xs font-semibold px-2 py-1 rounded-full ${statusStyle[d.status]}`}>
+              {d.status}
+            </span>,
+          ])}
+        />
+      </Card>
+    </div>
+  );
+}
+
+import { Card } from "@/components/ui/Card";
+import { ProgressBar } from "@/components/ui/Stat";
+import { AlertBadge } from "@/components/ui/AlertBadge";
+import { proChantiers } from "@/lib/mock-data";
+
+export default function ChantiersPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Chantiers</h1>
+      <div className="grid sm:grid-cols-2 gap-5">
+        {proChantiers.map((c) => (
+          <Card key={c.name}>
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <div className="font-medium">{c.name}</div>
+                <div className="text-xs text-ink-soft">{c.project} — {c.step}</div>
+              </div>
+              <AlertBadge level={c.level} pulse={c.level === "rouge"} />
+            </div>
+            <ProgressBar value={c.progress} />
+            <div className="text-xs text-ink-soft mt-2">{c.progress}% d'avancement</div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+import { Card } from "@/components/ui/Card";
+import { proTasksAuto } from "@/lib/mock-data";
+
+export default function ActionsPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Actions automatiques</h1>
+      <p className="text-ink-soft text-sm">Raymond prépare ces actions pour toi — relis-les avant envoi.</p>
+      <div className="grid sm:grid-cols-2 gap-5">
+        {proTasksAuto.map((t) => (
+          <Card key={t} className="flex items-center justify-between gap-4">
+            <span className="text-sm font-medium">{t}</span>
+            <div className="flex gap-2 flex-shrink-0">
+              <button className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-line hover:bg-canvas">Modifier</button>
+              <button className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-ink text-white">Envoyer</button>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+"use client";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+
+type Msg = { from: "raymond" | "user"; text: string };
+
+const initial: Msg[] = [
+  { from: "raymond", text: "Salut Alexandre. J'ai regardé tes 25 chantiers." },
+  { from: "raymond", text: "Aujourd'hui : 3 alertes importantes — retard fournisseur chez Martin, document manquant chez Dupont, et un dépassement probable sur le budget de Lefort." },
+];
+
+export default function RaymondProPage() {
+  const [messages, setMessages] = useState<Msg[]>(initial);
+  const [value, setValue] = useState("");
+
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    if (!value.trim()) return;
+    const question = value;
+    setValue("");
+    setMessages((m) => [...m, { from: "user", text: question }]);
+    try {
+      const res = await fetch("/api/raymond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question, space: "pro" }),
+      });
+      const json = await res.json();
+      setMessages((m) => [...m, { from: "raymond", text: json.reply ?? "Raymond n'a pas pu répondre." }]);
+    } catch {
+      setMessages((m) => [...m, { from: "raymond", text: "Raymond est momentanément indisponible — réessaie dans un instant." }]);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold">Raymond</h1>
+      <Card className="flex flex-col h-[520px]">
+        <div className="flex-1 overflow-y-auto space-y-4 scrollbar-thin pr-2">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.from === "user" ? "bg-brand text-white" : "bg-canvas text-ink"}`}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+        </div>
+        <form onSubmit={send} className="mt-4 flex gap-2 border-t border-line pt-4">
+          <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="Écris à Raymond…" className="flex-1 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-brand" />
+          <button className="bg-ink text-white text-sm font-semibold px-4 py-2 rounded-lg">Envoyer</button>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
+"use client";
+import { Card } from "@/components/ui/Card";
+import { StatCard } from "@/components/ui/Stat";
+import { AlertBadge } from "@/components/ui/AlertBadge";
+import { RaymondCard } from "@/components/RaymondCard";
+import { useDisplayName } from "@/lib/useDisplayName";
+import { stripeLinks } from "@/lib/stripe-links";
+import { proUser, proStats, proAlerts, proClients } from "@/lib/mock-data";
+
+export default function ProDashboard() {
+  const name = useDisplayName(proUser.firstName);
+  return (
+    <div className="space-y-6 animate-fade-up">
+      <div>
+        <h1 className="font-display text-2xl font-semibold">Salut {name} 👋</h1>
+        <p className="text-ink-soft mt-1">
+          J'ai regardé tes {proStats.chantiers} chantiers. Aujourd'hui : {proStats.alertesImportantes} alertes importantes.
+        </p>
+      </div>
+
+      <div className="grid sm:grid-cols-4 gap-5">
+        <StatCard label="Chantiers actifs" value={String(proStats.chantiers)} />
+        <StatCard label="Alertes importantes" value={String(proStats.alertesImportantes)} hint="à traiter aujourd'hui" hintTone="down" />
+        <StatCard label="CA prévisionnel" value={proStats.caPrevisionnel} />
+        <StatCard label="Marge moyenne" value={proStats.margeMoyenne} hintTone="up" hint="stable ce trimestre" />
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-5">
+        <Card className="md:col-span-2">
+          <h3 className="font-semibold mb-4">Alertes importantes</h3>
+          <div className="space-y-3">
+            {proAlerts.map((a) => (
+              <div key={a.id} className="flex items-start gap-2.5">
+                <AlertBadge level={a.level} pulse={a.level === "rouge"} />
+                <div className="text-sm">
+                  <div className="font-medium leading-snug">{a.title}</div>
+                  <div className="text-ink-soft text-xs mt-0.5">{a.detail}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <RaymondCard
+          userName={name}
+          intro="J'ai regardé tes 25 chantiers."
+          bullets={[
+            "Chantier Martin : retard fournisseur",
+            "Client Dupont : document manquant",
+            "Budget chantier Lefort : dépassement probable",
+          ]}
+        />
+      </div>
+
+      <Card>
+        <h3 className="font-semibold mb-4">Vos clients en cours</h3>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {proClients.map((c) => (
+            <div key={c.name} className="border border-line rounded-lg p-4">
+              <div className="flex justify-between items-start mb-1.5">
+                <span className="font-medium text-sm">{c.name}</span>
+                <AlertBadge level={c.level} />
+              </div>
+              <div className="text-xs text-ink-soft">{c.project}</div>
+              <div className="text-xs text-ink-soft">{c.step}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="font-semibold">Ajouter un nouveau client</h3>
+            <p className="text-sm text-ink-soft">300€ par client et par projet suivi.</p>
+          </div>
+          <a href={stripeLinks.proClientProjet} target="_blank" rel="noopener noreferrer" className="bg-ink text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-brand-dark transition-colors w-fit">
+            Ajouter — 300€
+          </a>
+        </div>
+      </Card>
+    </div>
+  );
+}
