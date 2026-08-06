@@ -94,7 +94,7 @@ export function SpaceShell({
         </div>
       </aside>
 
-      <main className="md:col-start-2 px-4 py-6 md:px-10 md:py-9 pb-32 max-w-[1240px]">
+      <main className="md:col-start-2 px-4 py-6 md:px-10 md:py-9 pb-48 max-w-[1240px]">
         {children}
       </main>
 

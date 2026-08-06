@@ -53,8 +53,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-canvas flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md bg-surface border border-line rounded-xl2 shadow-card p-7">
+    <main className="min-h-screen bg-canvas flex items-start sm:items-center justify-center px-4 py-8 overflow-y-auto">
+      <div className="w-full max-w-md bg-surface border border-line rounded-xl2 shadow-card p-5 sm:p-7 my-4">
         <div className="font-display text-xl font-semibold mb-1">
           Project <span className="text-brand">X</span>
         </div>
@@ -66,13 +66,13 @@ export default function LoginPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-2 mb-6">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-6">
           {spaces.map((s) => (
             <button
               key={s.key}
               type="button"
               onClick={() => setSpace(s.key)}
-              className={`text-xs font-semibold px-2 py-2.5 rounded-lg border transition-colors ${
+              className={`text-[11px] sm:text-xs font-semibold px-1 sm:px-2 py-2 sm:py-2.5 rounded-lg border transition-colors leading-tight break-words ${
                 space === s.key ? "bg-ink text-white border-ink" : "border-line text-ink-soft hover:bg-canvas"
               }`}
             >
