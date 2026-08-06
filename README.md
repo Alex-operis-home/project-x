@@ -33,9 +33,12 @@ Une page `/login` commune permet de choisir un espace puis de se connecter/crée
 
 ## Paiement
 
-Pas encore branché dans le code — deux options :
-1. **Rapide, sans code** : créer des Payment Links Stripe (dashboard Stripe, 5 min) pour chaque offre, et les poser en bouton sur les pages concernées.
-2. **Intégré** : Stripe Checkout via une route API Next.js (`app/api/checkout/route.ts` à créer), avec un webhook qui active l'accès du client automatiquement à la confirmation du paiement. Recommandé une fois les 3 espaces stabilisés — dites-le pour que ce soit ajouté au même rythme que Raymond et l'authentification.
+Boutons Stripe déjà intégrés (`lib/stripe-links.ts`) : abonnement Home 29€/mois, forfait Home 299€, forfait Premium 349€ sur le dashboard Home ; ajout client 300€ sur le dashboard Pro. **Ces liens sont en mode test** (`buy.stripe.com/test_...`) — aucun paiement réel n'est débité. Pour encaisser réellement :
+1. Basculer le compte Stripe en mode production (bouton "Activate account" / toggle Test-Live sur le dashboard Stripe), renseigner les infos légales/bancaires.
+2. Recréer les mêmes Payment Links en mode "live" (même procédure).
+3. Remplacer les URLs dans `lib/stripe-links.ts` par les nouveaux liens live.
+
+Étape suivante recommandée pour aller plus loin : Stripe Checkout via une route API Next.js avec webhook, pour activer automatiquement le compte du client à la confirmation du paiement (au lieu d'une activation manuelle après réception du paiement via Payment Link).
 
 ## Mobile
 

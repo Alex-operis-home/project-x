@@ -1,14 +1,18 @@
+"use client";
 import { Card } from "@/components/ui/Card";
 import { AlertBadge } from "@/components/ui/AlertBadge";
 import { ProgressRing } from "@/components/ProgressRing";
 import { RaymondCard } from "@/components/RaymondCard";
+import { useDisplayName } from "@/lib/useDisplayName";
+import { stripeLinks } from "@/lib/stripe-links";
 import { homeUser, homeProject, homeAlerts, homeTasks, homeDocuments, homeFrise } from "@/lib/mock-data";
 
 export default function HomeDashboard() {
+  const name = useDisplayName(homeUser.firstName);
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="font-display text-2xl font-semibold">Salut {homeUser.firstName} 👋</h1>
+        <h1 className="font-display text-2xl font-semibold">Salut {name} 👋</h1>
         <p className="text-ink-soft mt-1">
           Ta maison avance à <span className="font-semibold text-ink">{homeProject.progress}%</span>. Voici les prochaines étapes.
         </p>
@@ -112,9 +116,39 @@ export default function HomeDashboard() {
         </Card>
       </div>
 
+      {/* Offres */}
+      <Card>
+        <h3 className="font-semibold mb-1">Passer à l'offre payante</h3>
+        <p className="text-sm text-ink-soft mb-4">Choisissez la formule adaptée à votre projet.</p>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="border border-line rounded-lg p-4 flex flex-col gap-2">
+            <div className="font-semibold text-sm">Abonnement</div>
+            <div className="font-display text-xl font-semibold">29€<span className="text-sm text-ink-soft font-sans">/mois</span></div>
+            <a href={stripeLinks.homeAbonnement} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-ink text-white text-xs font-semibold py-2 rounded-lg hover:bg-brand-dark transition-colors">
+              S'abonner
+            </a>
+          </div>
+          <div className="border border-line rounded-lg p-4 flex flex-col gap-2">
+            <div className="font-semibold text-sm">Forfait projet</div>
+            <div className="font-display text-xl font-semibold">299€</div>
+            <a href={stripeLinks.homeForfait} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-ink text-white text-xs font-semibold py-2 rounded-lg hover:bg-brand-dark transition-colors">
+              Choisir
+            </a>
+          </div>
+          <div className="border border-gold rounded-lg p-4 flex flex-col gap-2 bg-gold-soft/40">
+            <div className="font-semibold text-sm">Forfait Premium</div>
+            <div className="font-display text-xl font-semibold">349€</div>
+            <div className="text-xs text-ink-soft">+ coffre-fort documentaire</div>
+            <a href={stripeLinks.homePremium} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-gold text-white text-xs font-semibold py-2 rounded-lg hover:opacity-90 transition-opacity">
+              Choisir
+            </a>
+          </div>
+        </div>
+      </Card>
+
       {/* Conversation avec Raymond */}
       <RaymondCard
-        userName={homeUser.firstName}
+        userName={name}
         intro="J'ai analysé ton dossier. Voici ce qui mérite ton attention aujourd'hui."
         bullets={[
           "Décennale manquante — à régulariser avant coulage",

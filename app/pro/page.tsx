@@ -1,14 +1,18 @@
+"use client";
 import { Card } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/Stat";
 import { AlertBadge } from "@/components/ui/AlertBadge";
 import { RaymondCard } from "@/components/RaymondCard";
+import { useDisplayName } from "@/lib/useDisplayName";
+import { stripeLinks } from "@/lib/stripe-links";
 import { proUser, proStats, proAlerts, proClients } from "@/lib/mock-data";
 
 export default function ProDashboard() {
+  const name = useDisplayName(proUser.firstName);
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="font-display text-2xl font-semibold">Salut {proUser.firstName} 👋</h1>
+        <h1 className="font-display text-2xl font-semibold">Salut {name} 👋</h1>
         <p className="text-ink-soft mt-1">
           J'ai regardé tes {proStats.chantiers} chantiers. Aujourd'hui : {proStats.alertesImportantes} alertes importantes.
         </p>
@@ -38,7 +42,7 @@ export default function ProDashboard() {
         </Card>
 
         <RaymondCard
-          userName={proUser.firstName}
+          userName={name}
           intro="J'ai regardé tes 25 chantiers."
           bullets={[
             "Chantier Martin : retard fournisseur",
@@ -61,6 +65,18 @@ export default function ProDashboard() {
               <div className="text-xs text-ink-soft">{c.step}</div>
             </div>
           ))}
+        </div>
+      </Card>
+
+      <Card>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="font-semibold">Ajouter un nouveau client</h3>
+            <p className="text-sm text-ink-soft">300€ par client et par projet suivi.</p>
+          </div>
+          <a href={stripeLinks.proClientProjet} target="_blank" rel="noopener noreferrer" className="bg-ink text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-brand-dark transition-colors w-fit">
+            Ajouter — 300€
+          </a>
         </div>
       </Card>
     </div>

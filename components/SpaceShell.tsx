@@ -98,7 +98,7 @@ export function SpaceShell({
         {children}
       </main>
 
-      <RaymondBar space={spaceName} />
+      {!pathname.endsWith("/raymond") && <RaymondBar space={spaceName} />}
     </div>
   );
 }
