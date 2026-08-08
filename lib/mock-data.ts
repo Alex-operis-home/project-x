@@ -62,15 +62,17 @@ export const homeStakeholders = [
 ];
 
 export const homePlanning = [
-  { step: "Terrain", status: "done" },
-  { step: "Financement", status: "done" },
-  { step: "Permis de construire", status: "done" },
-  { step: "Ouverture de chantier", status: "done" },
-  { step: "Gros œuvre", status: "done" },
-  { step: "Second œuvre", status: "current" },
-  { step: "Finitions", status: "todo" },
-  { step: "Réception", status: "todo" },
-  { step: "Livraison", status: "todo" },
+  { step: "Terrain", status: "done", advice: "Vérifiez la constructibilité et l'étude de sol avant toute signature." },
+  { step: "Financement", status: "done", advice: "Ne signez le compromis qu'une fois l'accord de principe bancaire obtenu." },
+  { step: "Étude / Conception", status: "done", advice: "Faites confirmer par écrit chaque modification apportée aux plans." },
+  { step: "Permis de construire", status: "done", advice: "Comptez les 2 mois d'instruction et le délai de recours des tiers avant d'ouvrir le chantier." },
+  { step: "Contrat constructeur", status: "done", advice: "Relisez la notice descriptive ligne à ligne — c'est elle qui protège en cas de litige." },
+  { step: "Ouverture de chantier", status: "done", advice: "Exigez les attestations d'assurance de tous les intervenants avant le premier coup de pelle." },
+  { step: "Gros œuvre", status: "done", advice: "Ne validez jamais un appel de fonds sans avoir vu l'avancement réel sur place." },
+  { step: "Second œuvre", status: "current", advice: "Conseil du fondateur : ne jamais couler de dalle sans l'attestation décennale en cours de validité en main." },
+  { step: "Finitions", status: "todo", advice: "Listez les réserves au fur et à mesure, ne les laissez pas s'accumuler pour la réception." },
+  { step: "Réception", status: "todo", advice: "La réception avec réserves déclenche des délais légaux précis — faites-vous accompagner ce jour-là." },
+  { step: "Livraison", status: "todo", advice: "Conservez tous les documents (garanties, PV de réception) : ils servent pendant 10 ans." },
 ];
 
 // ===================== ESPACE PRO (constructeur) =====================

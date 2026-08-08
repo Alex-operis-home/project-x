@@ -4,25 +4,27 @@ import { AlertBadge } from "@/components/ui/AlertBadge";
 import { ProgressRing } from "@/components/ProgressRing";
 import { RaymondCard } from "@/components/RaymondCard";
 import { useDisplayName } from "@/lib/useDisplayName";
+import { useHomeProject } from "@/lib/useHomeProject";
 import { stripeLinks } from "@/lib/stripe-links";
 import { homeUser, homeProject, homeAlerts, homeTasks, homeDocuments, homeFrise } from "@/lib/mock-data";
 
 export default function HomeDashboard() {
   const name = useDisplayName(homeUser.firstName);
+  const { progress, currentStep } = useHomeProject();
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="font-display text-2xl font-semibold">Salut {name} 👋</h1>
         <p className="text-ink-soft mt-1">
-          Ta maison avance à <span className="font-semibold text-ink">{homeProject.progress}%</span>. Voici les prochaines étapes.
+          Ta maison avance à <span className="font-semibold text-ink">{progress}%</span>. Voici les prochaines étapes.
         </p>
       </div>
 
       {/* HERO — cercle de progression + prochaine étape */}
       <div className="grid md:grid-cols-[260px_1fr] gap-5">
         <Card className="flex flex-col items-center justify-center gap-3">
-          <ProgressRing value={homeProject.progress} label="du parcours" />
-          <div className="text-sm text-ink-soft text-center">Étape en cours : {homeProject.step}</div>
+          <ProgressRing value={progress} label="du parcours" />
+          <div className="text-sm text-ink-soft text-center">Étape en cours : {currentStep}</div>
         </Card>
 
         <Card className="flex flex-col justify-center gap-2">

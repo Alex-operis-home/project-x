@@ -57,6 +57,10 @@ Tant que la clé n'est pas renseignée, Raymond répond avec un message expliqua
 
 Étape suivante recommandée : remplacer les données de démo passées en contexte par de vraies requêtes Supabase, pour que Raymond réponde sur les projets réels de chaque client.
 
+## Mise à jour du schéma (11 étapes persistées)
+
+Le fichier `lib/supabase/schema.sql` a été complété avec une table `project_steps`. Si Supabase est déjà branché, retourne dans le **SQL Editor** de ton projet Supabase et exécute à nouveau tout le fichier (il est écrit pour être rejoué sans risque — `create table if not exists`). Dès qu'un utilisateur se connecte sur l'espace Home, son projet et ses 11 étapes sont créés automatiquement en base s'ils n'existent pas encore.
+
 ## Prochaines étapes techniques recommandées
 1. Remplacer les tableaux `lib/mock-data.ts` par des requêtes Supabase (`lib/supabase/client.ts` déjà prêt).
 2. Stripe Checkout intégré (au-delà des Payment Links) pour l'activation automatique des comptes payants.

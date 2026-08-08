@@ -66,13 +66,13 @@ export default function LoginPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
           {spaces.map((s) => (
             <button
               key={s.key}
               type="button"
               onClick={() => setSpace(s.key)}
-              className={`text-[11px] sm:text-xs font-semibold px-1 sm:px-2 py-2 sm:py-2.5 rounded-lg border transition-colors leading-tight break-words ${
+              className={`text-sm font-semibold px-3 py-2.5 rounded-lg border transition-colors ${
                 space === s.key ? "bg-ink text-white border-ink" : "border-line text-ink-soft hover:bg-canvas"
               }`}
             >

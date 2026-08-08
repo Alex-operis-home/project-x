@@ -73,3 +73,21 @@ alter table tasks enable row level security;
 create policy "voir les tâches de ses projets" on tasks for select using (
   project_id in (select id from projects where owner_id = auth.uid())
 );
+
+-- Les 11 étapes du parcours Home, persistées par projet
+create table if not exists project_steps (
+  id uuid primary key default uuid_generate_v4(),
+  project_id uuid references projects(id) on delete cascade,
+  step_order int not null,
+  step_name text not null,
+  status text not null default 'todo' check (status in ('todo', 'current', 'done')),
+  advice text,
+  created_at timestamptz default now()
+);
+alter table project_steps enable row level security;
+create policy "voir les étapes de ses projets" on project_steps for select using (
+  project_id in (select id from projects where owner_id = auth.uid())
+);
+create policy "modifier les étapes de ses projets" on project_steps for all using (
+  project_id in (select id from projects where owner_id = auth.uid())
+);

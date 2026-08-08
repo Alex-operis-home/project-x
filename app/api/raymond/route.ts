@@ -65,8 +65,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json({ reply: `Raymond a rencontré une erreur (${response.status}). Détail technique : ${errText.slice(0, 200)}` }, { status: 200 });
+      return NextResponse.json({
+        reply: "Raymond n'est pas encore disponible pour le moment — reviens un peu plus tard.",
+      }, { status: 200 });
     }
 
     const dataResp = await response.json();
