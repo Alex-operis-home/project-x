@@ -10,6 +10,7 @@ export type DocView = { id: string; name: string; category: string; status: "con
 export function useHomeProject() {
   const [loading, setLoading] = useState(true);
   const [demo, setDemo] = useState(true);
+  const [debugError, setDebugError] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(homeProject.address);
   const [steps, setSteps] = useState<StepView[]>(
     homePlanning.map((s) => ({ step: s.step, status: s.status as StepView["status"], advice: s.advice }))
@@ -25,7 +26,8 @@ export function useHomeProject() {
     let cancelled = false;
     getOrCreateHomeProject().then((result) => {
       if (cancelled) return;
-      if (result) {
+      if (result.debugError) setDebugError(result.debugError);
+      if (result.project) {
         setDemo(false);
         setAddress(result.project.address);
         setSteps(
@@ -59,6 +61,7 @@ export function useHomeProject() {
   return {
     loading,
     demo,
+    debugError,
     address,
     builder: homeProject.builder, // pas encore en base — reste en démo pour l'instant
     steps,

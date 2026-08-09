@@ -10,7 +10,7 @@ import { homeUser, homeProject, homeTasks, homeFrise } from "@/lib/mock-data";
 
 export default function HomeDashboard() {
   const name = useDisplayName(homeUser.firstName);
-  const { progress, currentStep, alerts, documents, demo } = useHomeProject();
+  const { progress, currentStep, alerts, documents, demo, debugError } = useHomeProject();
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
@@ -22,7 +22,9 @@ export default function HomeDashboard() {
 
       {demo && (
         <div className="text-xs bg-gold-soft text-ink-soft rounded-lg p-3">
-          Données de démonstration — connecte-toi avec un compte réel pour voir ton propre projet.
+          {debugError
+            ? `Connexion aux données réelles impossible : ${debugError}`
+            : "Données de démonstration — connecte-toi avec un compte réel pour voir ton propre projet."}
         </div>
       )}
 

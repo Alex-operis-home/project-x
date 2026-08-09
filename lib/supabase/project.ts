@@ -34,13 +34,21 @@ export type DbDocument = {
   status: "conforme" | "manquant" | "bloquant";
 };
 
+export type HomeProjectResult = {
+  project: DbProject | null;
+  steps: DbStep[];
+  alerts: DbAlert[];
+  documents: DbDocument[];
+  debugError: string | null;
+};
+
 // S'assure qu'un profil existe pour l'utilisateur connecté (obligatoire avant
 // de créer un projet, car projects.owner_id référence profiles.id).
-async function ensureProfile(userId: string) {
-  if (!supabase) return;
+async function ensureProfile(userId: string): Promise<string | null> {
+  if (!supabase) return null;
   const { data: userData } = await supabase.auth.getUser();
   const meta = userData.user?.user_metadata as { space?: string; full_name?: string } | undefined;
-  await supabase.from("profiles").upsert(
+  const { error } = await supabase.from("profiles").upsert(
     {
       id: userId,
       space: meta?.space ?? "home",
@@ -48,32 +56,32 @@ async function ensureProfile(userId: string) {
     },
     { onConflict: "id", ignoreDuplicates: true }
   );
+  return error ? `profil: ${error.message}` : null;
 }
 
 // Récupère le projet Home de l'utilisateur connecté, ou le crée (avec ses 11
 // étapes, alertes et documents de départ) s'il n'en a pas encore.
-// Retourne null en mode démo ou si l'utilisateur n'est pas connecté.
-export async function getOrCreateHomeProject(): Promise<{
-  project: DbProject;
-  steps: DbStep[];
-  alerts: DbAlert[];
-  documents: DbDocument[];
-} | null> {
-  if (!isSupabaseConfigured || !supabase) return null;
+// debugError contient le message d'erreur exact en cas d'échec, pour diagnostic.
+export async function getOrCreateHomeProject(): Promise<HomeProjectResult> {
+  const empty: HomeProjectResult = { project: null, steps: [], alerts: [], documents: [], debugError: null };
+  if (!isSupabaseConfigured || !supabase) return empty;
 
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
   const userId = userData.user?.id;
-  if (!userId) return null;
+  if (!userId) return { ...empty, debugError: userError ? `auth: ${userError.message}` : "auth: utilisateur non connecté" };
 
-  await ensureProfile(userId);
+  const profileError = await ensureProfile(userId);
+  if (profileError) return { ...empty, debugError: profileError };
 
-  const { data: existing } = await supabase
+  const { data: existing, error: fetchError } = await supabase
     .from("projects")
     .select("*")
     .eq("owner_id", userId)
     .eq("space", "home")
     .limit(1)
     .maybeSingle();
+
+  if (fetchError) return { ...empty, debugError: `lecture projet: ${fetchError.message}` };
 
   let project = existing as DbProject | null;
 
@@ -92,7 +100,7 @@ export async function getOrCreateHomeProject(): Promise<{
       })
       .select()
       .single();
-    if (error || !created) return null;
+    if (error || !created) return { ...empty, debugError: `création projet: ${error?.message ?? "inconnue"}` };
     project = created as DbProject;
 
     const stepsToInsert = homePlanning.map((s, i) => ({
@@ -102,7 +110,8 @@ export async function getOrCreateHomeProject(): Promise<{
       status: s.status,
       advice: s.advice,
     }));
-    await supabase.from("project_steps").insert(stepsToInsert);
+    const { error: stepsError } = await supabase.from("project_steps").insert(stepsToInsert);
+    if (stepsError) return { ...empty, project, debugError: `étapes: ${stepsError.message}` };
 
     const alertsToInsert = homeAlerts.map((a) => ({
       project_id: project!.id,
@@ -110,7 +119,8 @@ export async function getOrCreateHomeProject(): Promise<{
       title: a.title,
       detail: a.detail,
     }));
-    await supabase.from("alerts").insert(alertsToInsert);
+    const { error: alertsError } = await supabase.from("alerts").insert(alertsToInsert);
+    if (alertsError) return { ...empty, project, debugError: `alertes: ${alertsError.message}` };
 
     const documentsToInsert = homeDocuments.map((d) => ({
       project_id: project!.id,
@@ -118,7 +128,8 @@ export async function getOrCreateHomeProject(): Promise<{
       category: d.category,
       status: d.status,
     }));
-    await supabase.from("documents").insert(documentsToInsert);
+    const { error: docsError } = await supabase.from("documents").insert(documentsToInsert);
+    if (docsError) return { ...empty, project, debugError: `documents: ${docsError.message}` };
   }
 
   const [{ data: steps }, { data: alerts }, { data: documents }] = await Promise.all([
@@ -132,6 +143,7 @@ export async function getOrCreateHomeProject(): Promise<{
     steps: (steps as DbStep[]) ?? [],
     alerts: (alerts as DbAlert[]) ?? [],
     documents: (documents as DbDocument[]) ?? [],
+    debugError: null,
   };
 }
 
