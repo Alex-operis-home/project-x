@@ -24,29 +24,35 @@ export function useHomeProject() {
 
   useEffect(() => {
     let cancelled = false;
-    getOrCreateHomeProject().then((result) => {
-      if (cancelled) return;
-      if (result.debugError) setDebugError(result.debugError);
-      if (result.project) {
-        setDemo(false);
-        setAddress(result.project.address);
-        setSteps(
-          result.steps.map((s: DbStep) => ({ id: s.id, step: s.step_name, status: s.status, advice: s.advice ?? "" }))
-        );
-        setAlerts(
-          result.alerts.map((a: DbAlert) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail ?? "" }))
-        );
-        setDocuments(
-          result.documents.map((d: DbDocument) => ({
-            id: d.id,
-            name: d.name,
-            category: d.category ?? "",
-            status: d.status,
-          }))
-        );
-      }
-      setLoading(false);
-    });
+    getOrCreateHomeProject()
+      .then((result) => {
+        if (cancelled) return;
+        if (result.debugError) setDebugError(result.debugError);
+        if (result.project) {
+          setDemo(false);
+          setAddress(result.project.address);
+          setSteps(
+            result.steps.map((s: DbStep) => ({ id: s.id, step: s.step_name, status: s.status, advice: s.advice ?? "" }))
+          );
+          setAlerts(
+            result.alerts.map((a: DbAlert) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail ?? "" }))
+          );
+          setDocuments(
+            result.documents.map((d: DbDocument) => ({
+              id: d.id,
+              name: d.name,
+              category: d.category ?? "",
+              status: d.status,
+            }))
+          );
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setDebugError(`exception: ${err instanceof Error ? err.message : String(err)}`);
+        setLoading(false);
+      });
     return () => {
       cancelled = true;
     };

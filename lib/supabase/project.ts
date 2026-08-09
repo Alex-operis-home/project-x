@@ -66,14 +66,23 @@ export async function getOrCreateHomeProject(): Promise<HomeProjectResult> {
   const empty: HomeProjectResult = { project: null, steps: [], alerts: [], documents: [], debugError: null };
   if (!isSupabaseConfigured || !supabase) return empty;
 
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  try {
+    return await getOrCreateHomeProjectUnsafe(empty);
+  } catch (err) {
+    return { ...empty, debugError: `exception inattendue: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+async function getOrCreateHomeProjectUnsafe(empty: HomeProjectResult): Promise<HomeProjectResult> {
+  const db = supabase!;
+  const { data: userData, error: userError } = await db.auth.getUser();
   const userId = userData.user?.id;
   if (!userId) return { ...empty, debugError: userError ? `auth: ${userError.message}` : "auth: utilisateur non connecté" };
 
   const profileError = await ensureProfile(userId);
   if (profileError) return { ...empty, debugError: profileError };
 
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing, error: fetchError } = await db
     .from("projects")
     .select("*")
     .eq("owner_id", userId)
@@ -86,7 +95,7 @@ export async function getOrCreateHomeProject(): Promise<HomeProjectResult> {
   let project = existing as DbProject | null;
 
   if (!project) {
-    const { data: created, error } = await supabase
+    const { data: created, error } = await db
       .from("projects")
       .insert({
         owner_id: userId,
@@ -110,7 +119,7 @@ export async function getOrCreateHomeProject(): Promise<HomeProjectResult> {
       status: s.status,
       advice: s.advice,
     }));
-    const { error: stepsError } = await supabase.from("project_steps").insert(stepsToInsert);
+    const { error: stepsError } = await db.from("project_steps").insert(stepsToInsert);
     if (stepsError) return { ...empty, project, debugError: `étapes: ${stepsError.message}` };
 
     const alertsToInsert = homeAlerts.map((a) => ({
@@ -119,7 +128,7 @@ export async function getOrCreateHomeProject(): Promise<HomeProjectResult> {
       title: a.title,
       detail: a.detail,
     }));
-    const { error: alertsError } = await supabase.from("alerts").insert(alertsToInsert);
+    const { error: alertsError } = await db.from("alerts").insert(alertsToInsert);
     if (alertsError) return { ...empty, project, debugError: `alertes: ${alertsError.message}` };
 
     const documentsToInsert = homeDocuments.map((d) => ({
@@ -128,14 +137,14 @@ export async function getOrCreateHomeProject(): Promise<HomeProjectResult> {
       category: d.category,
       status: d.status,
     }));
-    const { error: docsError } = await supabase.from("documents").insert(documentsToInsert);
+    const { error: docsError } = await db.from("documents").insert(documentsToInsert);
     if (docsError) return { ...empty, project, debugError: `documents: ${docsError.message}` };
   }
 
   const [{ data: steps }, { data: alerts }, { data: documents }] = await Promise.all([
-    supabase.from("project_steps").select("*").eq("project_id", project.id).order("step_order", { ascending: true }),
-    supabase.from("alerts").select("*").eq("project_id", project.id).order("created_at", { ascending: true }),
-    supabase.from("documents").select("*").eq("project_id", project.id).order("created_at", { ascending: true }),
+    db.from("project_steps").select("*").eq("project_id", project.id).order("step_order", { ascending: true }),
+    db.from("alerts").select("*").eq("project_id", project.id).order("created_at", { ascending: true }),
+    db.from("documents").select("*").eq("project_id", project.id).order("created_at", { ascending: true }),
   ]);
 
   return {
