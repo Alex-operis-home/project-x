@@ -6,11 +6,11 @@ import { RaymondCard } from "@/components/RaymondCard";
 import { useDisplayName } from "@/lib/useDisplayName";
 import { useHomeProject } from "@/lib/useHomeProject";
 import { stripeLinks } from "@/lib/stripe-links";
-import { homeUser, homeProject, homeAlerts, homeTasks, homeDocuments, homeFrise } from "@/lib/mock-data";
+import { homeUser, homeProject, homeTasks, homeFrise } from "@/lib/mock-data";
 
 export default function HomeDashboard() {
   const name = useDisplayName(homeUser.firstName);
-  const { progress, currentStep } = useHomeProject();
+  const { progress, currentStep, alerts, documents, demo } = useHomeProject();
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
@@ -19,6 +19,12 @@ export default function HomeDashboard() {
           Ta maison avance à <span className="font-semibold text-ink">{progress}%</span>. Voici les prochaines étapes.
         </p>
       </div>
+
+      {demo && (
+        <div className="text-xs bg-gold-soft text-ink-soft rounded-lg p-3">
+          Données de démonstration — connecte-toi avec un compte réel pour voir ton propre projet.
+        </div>
+      )}
 
       {/* HERO — cercle de progression + prochaine étape */}
       <div className="grid md:grid-cols-[260px_1fr] gap-5">
@@ -68,7 +74,7 @@ export default function HomeDashboard() {
         <Card>
           <h3 className="font-semibold mb-4">Mes alertes</h3>
           <div className="space-y-3">
-            {homeAlerts.map((a) => (
+            {alerts.map((a) => (
               <div key={a.id} className="flex items-start gap-2.5">
                 <AlertBadge level={a.level} pulse={a.level === "rouge"} />
                 <div className="text-sm">
@@ -98,7 +104,7 @@ export default function HomeDashboard() {
         <Card>
           <h3 className="font-semibold mb-4">Documents récents</h3>
           <div className="space-y-2">
-            {homeDocuments.slice(0, 3).map((d) => (
+            {documents.slice(0, 3).map((d) => (
               <div key={d.id} className="flex items-center justify-between py-1.5">
                 <div className="text-sm font-medium">{d.name}</div>
                 <span

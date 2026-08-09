@@ -1,16 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getOrCreateHomeProject, DbProject, DbStep } from "./supabase/project";
-import { homeProject, homePlanning } from "./mock-data";
+import { getOrCreateHomeProject, DbAlert, DbDocument, DbStep } from "./supabase/project";
+import { homeProject, homePlanning, homeAlerts, homeDocuments } from "./mock-data";
 
 export type StepView = { step: string; status: "todo" | "current" | "done"; advice: string; id?: string };
+export type AlertView = { id: string; level: "vert" | "orange" | "rouge"; title: string; detail: string };
+export type DocView = { id: string; name: string; category: string; status: "conforme" | "manquant" | "bloquant" };
 
 export function useHomeProject() {
   const [loading, setLoading] = useState(true);
   const [demo, setDemo] = useState(true);
-  const [project, setProject] = useState<DbProject | null>(null);
+  const [address, setAddress] = useState<string | null>(homeProject.address);
   const [steps, setSteps] = useState<StepView[]>(
     homePlanning.map((s) => ({ step: s.step, status: s.status as StepView["status"], advice: s.advice }))
+  );
+  const [alerts, setAlerts] = useState<AlertView[]>(
+    homeAlerts.map((a) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail }))
+  );
+  const [documents, setDocuments] = useState<DocView[]>(
+    homeDocuments.map((d) => ({ id: d.id, name: d.name, category: d.category, status: d.status }))
   );
 
   useEffect(() => {
@@ -19,13 +27,19 @@ export function useHomeProject() {
       if (cancelled) return;
       if (result) {
         setDemo(false);
-        setProject(result.project);
+        setAddress(result.project.address);
         setSteps(
-          result.steps.map((s: DbStep) => ({
-            id: s.id,
-            step: s.step_name,
-            status: s.status,
-            advice: s.advice ?? "",
+          result.steps.map((s: DbStep) => ({ id: s.id, step: s.step_name, status: s.status, advice: s.advice ?? "" }))
+        );
+        setAlerts(
+          result.alerts.map((a: DbAlert) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail ?? "" }))
+        );
+        setDocuments(
+          result.documents.map((d: DbDocument) => ({
+            id: d.id,
+            name: d.name,
+            category: d.category ?? "",
+            status: d.status,
           }))
         );
       }
@@ -45,9 +59,11 @@ export function useHomeProject() {
   return {
     loading,
     demo,
-    address: project?.address ?? homeProject.address,
+    address,
     builder: homeProject.builder, // pas encore en base — reste en démo pour l'instant
     steps,
+    alerts,
+    documents,
     progress,
     currentStep,
   };
