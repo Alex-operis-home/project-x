@@ -61,8 +61,13 @@ export default function LoginPage() {
         <p className="text-sm text-ink-soft mb-6">Connecte-toi ou crée ton compte.</p>
 
         {!isSupabaseConfigured && (
-          <div className="text-xs bg-gold-soft text-ink-soft rounded-lg p-3 mb-5">
-            Mode démonstration — Supabase n'est pas encore branché. Choisis un espace pour l'explorer avec des données d'exemple.
+          <div className="text-xs bg-gold-soft text-ink-soft rounded-lg p-3 mb-5 space-y-1">
+            <div>Mode démonstration — Supabase n'est pas encore branché. Choisis un espace pour l'explorer avec des données d'exemple.</div>
+            <div className="pt-1 border-t border-gold/30 mt-1 font-mono text-[10px] opacity-80">
+              Diagnostic — URL détectée : {process.env.NEXT_PUBLIC_SUPABASE_URL ? `${process.env.NEXT_PUBLIC_SUPABASE_URL.slice(0, 20)}…` : "(vide)"}
+              {" · "}
+              Clé détectée : {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? `${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.slice(0, 12)}…` : "(vide)"}
+            </div>
           </div>
         )}
 

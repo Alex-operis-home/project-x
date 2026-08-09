@@ -1,5 +1,6 @@
 -- =========================================================
 -- PROJECT X — Schéma Supabase (Home / Pro / Promoteur)
+-- Ce fichier peut être rejoué en entier à tout moment sans erreur.
 -- =========================================================
 create extension if not exists "uuid-ossp";
 
@@ -11,8 +12,11 @@ create table if not exists profiles (
   created_at timestamptz default now()
 );
 alter table profiles enable row level security;
+drop policy if exists "profil visible par son propriétaire" on profiles;
 create policy "profil visible par son propriétaire" on profiles for select using (auth.uid() = id);
+drop policy if exists "profil modifiable par son propriétaire" on profiles;
 create policy "profil modifiable par son propriétaire" on profiles for update using (auth.uid() = id);
+drop policy if exists "profil créé par son propriétaire" on profiles;
 create policy "profil créé par son propriétaire" on profiles for insert with check (auth.uid() = id);
 
 -- Un "projet" = une maison (Home), un chantier (Pro) ou une opération (Promoteur)
@@ -30,8 +34,10 @@ create table if not exists projects (
   created_at timestamptz default now()
 );
 alter table projects enable row level security;
+drop policy if exists "voir ses projets" on projects;
 create policy "voir ses projets" on projects for select using (auth.uid() = owner_id);
-create policy "gérer ses projets" on projects for all using (auth.uid() = owner_id);
+drop policy if exists "gérer ses projets" on projects;
+create policy "gérer ses projets" on projects for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
 
 create table if not exists alerts (
   id uuid primary key default uuid_generate_v4(),
@@ -43,7 +49,11 @@ create table if not exists alerts (
   created_at timestamptz default now()
 );
 alter table alerts enable row level security;
-create policy "voir les alertes de ses projets" on alerts for select using (
+drop policy if exists "voir les alertes de ses projets" on alerts;
+drop policy if exists "gérer les alertes de ses projets" on alerts;
+create policy "gérer les alertes de ses projets" on alerts for all using (
+  project_id in (select id from projects where owner_id = auth.uid())
+) with check (
   project_id in (select id from projects where owner_id = auth.uid())
 );
 
@@ -57,7 +67,11 @@ create table if not exists documents (
   created_at timestamptz default now()
 );
 alter table documents enable row level security;
-create policy "voir les documents de ses projets" on documents for select using (
+drop policy if exists "voir les documents de ses projets" on documents;
+drop policy if exists "gérer les documents de ses projets" on documents;
+create policy "gérer les documents de ses projets" on documents for all using (
+  project_id in (select id from projects where owner_id = auth.uid())
+) with check (
   project_id in (select id from projects where owner_id = auth.uid())
 );
 
@@ -70,7 +84,11 @@ create table if not exists tasks (
   created_at timestamptz default now()
 );
 alter table tasks enable row level security;
-create policy "voir les tâches de ses projets" on tasks for select using (
+drop policy if exists "voir les tâches de ses projets" on tasks;
+drop policy if exists "gérer les tâches de ses projets" on tasks;
+create policy "gérer les tâches de ses projets" on tasks for all using (
+  project_id in (select id from projects where owner_id = auth.uid())
+) with check (
   project_id in (select id from projects where owner_id = auth.uid())
 );
 
@@ -85,9 +103,10 @@ create table if not exists project_steps (
   created_at timestamptz default now()
 );
 alter table project_steps enable row level security;
-create policy "voir les étapes de ses projets" on project_steps for select using (
+drop policy if exists "voir les étapes de ses projets" on project_steps;
+drop policy if exists "modifier les étapes de ses projets" on project_steps;
+create policy "gérer les étapes de ses projets" on project_steps for all using (
   project_id in (select id from projects where owner_id = auth.uid())
-);
-create policy "modifier les étapes de ses projets" on project_steps for all using (
+) with check (
   project_id in (select id from projects where owner_id = auth.uid())
 );
