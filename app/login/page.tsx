@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type SpaceKey = "home" | "pro" | "promoteur";
@@ -11,15 +12,25 @@ const spaces: { key: SpaceKey; label: string; desc: string }[] = [
   { key: "promoteur", label: "Promoteur", desc: "Project X Promoteur" },
 ];
 
-export default function LoginPage() {
+function isSpaceKey(value: string | null): value is SpaceKey {
+  return value === "home" || value === "pro" || value === "promoteur";
+}
+
+function LoginForm() {
   const router = useRouter();
-  const [space, setSpace] = useState<SpaceKey>("home");
+  const searchParams = useSearchParams();
+  const espaceParam = searchParams.get("espace");
+  const preselected = isSpaceKey(espaceParam) ? espaceParam : null;
+
+  const [space, setSpace] = useState<SpaceKey>(preselected ?? "home");
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const currentSpace = spaces.find((s) => s.key === space)!;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,7 +69,19 @@ export default function LoginPage() {
         <div className="font-display text-xl font-semibold mb-1">
           Project <span className="text-brand">X</span>
         </div>
-        <p className="text-sm text-ink-soft mb-6">Connecte-toi ou crée ton compte.</p>
+
+        {preselected ? (
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-ink-soft">
+              Connexion — Espace <span className="font-semibold text-ink">{currentSpace.label}</span>
+            </p>
+            <Link href="/" className="text-xs text-brand hover:underline whitespace-nowrap ml-3">
+              Ce n'est pas le bon espace ? Changer
+            </Link>
+          </div>
+        ) : (
+          <p className="text-sm text-ink-soft mb-6">Connecte-toi ou crée ton compte.</p>
+        )}
 
         {!isSupabaseConfigured && (
           <div className="text-xs bg-gold-soft text-ink-soft rounded-lg p-3 mb-5 space-y-1">
@@ -71,20 +94,23 @@ export default function LoginPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
-          {spaces.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => setSpace(s.key)}
-              className={`text-sm font-semibold px-3 py-2.5 rounded-lg border transition-colors ${
-                space === s.key ? "bg-ink text-white border-ink" : "border-line text-ink-soft hover:bg-canvas"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+        {/* Les 3 bandeaux ne s'affichent que si l'espace n'a pas déjà été choisi depuis l'accueil */}
+        {!preselected && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
+            {spaces.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => setSpace(s.key)}
+                className={`text-sm font-semibold px-3 py-2.5 rounded-lg border transition-colors ${
+                  space === s.key ? "bg-ink text-white border-ink" : "border-line text-ink-soft hover:bg-canvas"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="flex gap-2 mb-5">
           <button
@@ -148,5 +174,13 @@ export default function LoginPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -96,6 +96,30 @@ export function rulesByCategory(category: RuleCategory): Rule[] {
   return rules.filter((r) => r.category === category);
 }
 
+// Associe chaque étape du parcours (Home) ou chaque phase de chantier (Pro)
+// à sa catégorie de règles — utilisé pour afficher les règles pertinentes
+// directement dans le contexte de l'étape, plutôt que dans un menu séparé.
+export const stepToCategory: Record<string, RuleCategory> = {
+  "Terrain": "terrain",
+  "Financement": "financement",
+  "Étude / Conception": "administratif",
+  "Permis de construire": "administratif",
+  "Contrat constructeur": "administratif",
+  "Ouverture de chantier": "administratif",
+  "Fondations": "construction",
+  "Gros œuvre": "construction",
+  "Charpente": "construction",
+  "Second œuvre": "construction",
+  "Finitions": "construction",
+  "Réception": "livraison",
+  "Livraison": "livraison",
+};
+
+export function rulesForStep(stepName: string): Rule[] {
+  const category = stepToCategory[stepName];
+  return category ? rulesByCategory(category) : [];
+}
+
 // Pondération du score de risque global (cahier technique, Partie 4)
 export const levelWeight: Record<RuleLevel, number> = { rouge: -15, orange: -5, vert: 0 };
 

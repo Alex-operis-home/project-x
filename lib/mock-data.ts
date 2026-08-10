@@ -106,9 +106,12 @@ export const proStats = {
 };
 
 export const proAlerts: Alert[] = [
-  { id: "1", level: "rouge", title: "Chantier Martin : retard fournisseur", detail: "Livraison charpente décalée de 3 semaines." },
-  { id: "2", level: "rouge", title: "Client Dupont : document manquant", detail: "Attestation décennale non transmise." },
-  { id: "3", level: "orange", title: "Budget chantier Lefort : dépassement probable", detail: "Second œuvre +6% vs devis initial." },
+  alertFromRule("1", "constr-02", "Chantier Martin : retard fournisseur"),
+  alertFromRule("2", "admin-05", "Client Dupont : attestation décennale manquante"),
+  alertFromRule("3", "finance-03", "Budget chantier Lefort : dépassement probable"),
+  alertFromRule("4", "constr-09", "Sous-traitant chantier Roux : assurance à vérifier"),
+  alertFromRule("5", "livr-01", "Réception chantier Girard : réserves à formaliser par écrit"),
+  alertFromRule("6", "constr-07", "Chantier Dupont : compte-rendu de chantier manquant"),
 ];
 
 export const proClients = [
@@ -143,9 +146,12 @@ export const promoteurStats = {
 };
 
 export const promoteurAlerts: Alert[] = [
-  { id: "1", level: "rouge", title: "Retard VRD — Lotissement Val Fleuri", detail: "Impact planning estimé : 6 semaines." },
-  { id: "2", level: "rouge", title: "Dépassement budget lot 4 — Les Ateliers", detail: "Écart de +180 000 € vs budget initial." },
-  { id: "3", level: "orange", title: "Garantie financière d'achèvement à renouveler", detail: "Échéance le 14 septembre 2026." },
+  alertFromRule("1", "constr-02", "Retard VRD — Lotissement Val Fleuri"),
+  alertFromRule("2", "finance-03", "Dépassement budget lot 4 — Les Ateliers"),
+  alertFromRule("3", "finance-05", "Garantie financière d'achèvement à renouveler"),
+  alertFromRule("4", "admin-04", "Assurance dommages-ouvrage — Résidence Les Cèdres"),
+  alertFromRule("5", "constr-10", "Réserves non levées — Les Terrasses du Lac"),
+  alertFromRule("6", "livr-04", "Solde final — vérifier la levée des réserves avant paiement (Val Fleuri)"),
 ];
 
 export const promoteurOperations = [

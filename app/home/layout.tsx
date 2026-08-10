@@ -1,7 +1,7 @@
 "use client";
 import { SpaceShell, NavItem } from "@/components/SpaceShell";
 import { RequireAuth } from "@/components/RequireAuth";
-import { LayoutDashboard, Home as HomeIcon, Wallet, CalendarClock, FileText, Users2, Bot, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Home as HomeIcon, Wallet, CalendarClock, FileText, Users2, Bot } from "lucide-react";
 import { homeUser } from "@/lib/mock-data";
 
 const navItems: NavItem[] = [
@@ -11,7 +11,6 @@ const navItems: NavItem[] = [
   { label: "Planning", href: "/home/planning", icon: CalendarClock },
   { label: "Documents", href: "/home/documents", icon: FileText },
   { label: "Intervenants", href: "/home/intervenants", icon: Users2 },
-  { label: "Règles Opéris", href: "/home/regles", icon: ShieldCheck },
   { label: "Raymond", href: "/home/raymond", icon: Bot },
 ];
 
