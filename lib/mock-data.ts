@@ -1,0 +1,168 @@
+import type { Alert, Doc, Task } from "./types";
+import { getRule } from "./rules";
+
+function alertFromRule(id: string, ruleId: string, overrideTitle?: string): Alert {
+  const rule = getRule(ruleId)!;
+  return {
+    id,
+    level: rule.level,
+    title: overrideTitle ?? rule.condition,
+    detail: `Règle Opéris ${rule.id} — ${rule.advice}`,
+  };
+}
+
+// ===================== ESPACE HOME (particulier) =====================
+export const homeUser = { firstName: "Alexandre" };
+
+export const homeProject = {
+  name: "Maison Alexandre",
+  address: "12 Chemin des Tilleuls, 33170 Gradignan",
+  builder: "Constructions Dupont",
+  startDate: "3 mars 2026",
+  progress: 42,
+  step: "Second œuvre",
+  nextStep: {
+    title: "Réception des fondations",
+    deadline: "12 septembre 2026",
+    advice: "Votre maçon doit vous inviter à valider les fondations avant de couler la dalle. C'est le moment de vérifier deux points essentiels avant de donner votre accord.",
+  },
+};
+
+export const homeBudget = {
+  planned: 245000,
+  spent: 138400,
+  remaining: 106600,
+};
+
+export const homeAlerts: Alert[] = [
+  alertFromRule("1", "admin-05", "Attestation décennale du maçon manquante"),
+  alertFromRule("2", "finance-02", "Appel de fonds n°4 à corréler à l'avancement"),
+  alertFromRule("3", "constr-10", "Réserves du gros œuvre non levées"),
+  alertFromRule("4", "admin-05", "Garantie décennale de l'électricien manquante"),
+  alertFromRule("5", "constr-06", "Devis menuiseries — changement non validé par écrit"),
+  { id: "6", level: "vert", title: "Permis de construire purgé", detail: "Délai de recours des tiers (règle admin-02) écoulé sans contestation." },
+  alertFromRule("7", "admin-04", "Assurance dommages-ouvrage à renouveler"),
+  alertFromRule("8", "finance-03", "Écart budgétaire second œuvre (+4 200 €)"),
+  { id: "9", level: "vert", title: "Plomberie posée et testée", detail: "Contrôle d'étanchéité réalisé, conforme (règle constr-05)." },
+  alertFromRule("10", "constr-07", "Compte-rendu de chantier en retard"),
+  { id: "11", level: "vert", title: "Raccordement électrique validé", detail: "Attestation Consuel obtenue (règle livr-05)." },
+  alertFromRule("12", "constr-10", "Deux réserves ouvertes depuis la précédente visite"),
+];
+
+// Frise imagée du prototype Opéris — vision simplifiée et rassurante du chantier
+export const homeFrise = [
+  { icon: "🌱", label: "Terrain", done: true },
+  { icon: "🧱", label: "Fondations", done: true },
+  { icon: "🧱", label: "Murs", done: true },
+  { icon: "🏗️", label: "Charpente", done: false, current: true },
+  { icon: "🪟", label: "Menuiseries", done: false },
+  { icon: "🎨", label: "Finitions", done: false },
+  { icon: "🔑", label: "Remise des clés", done: false },
+];
+
+export const homeTasks: Task[] = [
+  { id: "1", title: "Transmettre le RIB pour l'appel de fonds", done: false, due: "5 sept." },
+  { id: "2", title: "Valider le choix des menuiseries", done: false, due: "10 sept." },
+  { id: "3", title: "Relire le compte-rendu de chantier", done: true },
+];
+
+export const homeDocuments: Doc[] = [
+  { id: "1", name: "Permis de construire", category: "Permis", status: "conforme" },
+  { id: "2", name: "Devis lot menuiseries", category: "Devis", status: "conforme" },
+  { id: "3", name: "Contrat de construction (CCMI)", category: "Contrats", status: "conforme" },
+  { id: "4", name: "Attestation décennale maçon", category: "Assurances", status: "manquant" },
+  { id: "5", name: "Plans d'exécution", category: "Plans", status: "conforme" },
+];
+
+export const homeStakeholders = [
+  { name: "Constructions Dupont", role: "Constructeur", phone: "05 56 00 00 00" },
+  { name: "Cabinet Lenoir", role: "Architecte", phone: "05 56 11 11 11" },
+  { name: "SARL Petit Frères", role: "Maçonnerie", phone: "05 56 22 22 22" },
+  { name: "Électricité Moreau", role: "Électricien", phone: "05 56 33 33 33" },
+];
+
+export const homePlanning = [
+  { step: "Terrain", status: "done", advice: "Vérifiez la constructibilité et l'étude de sol avant toute signature." },
+  { step: "Financement", status: "done", advice: "Ne signez le compromis qu'une fois l'accord de principe bancaire obtenu." },
+  { step: "Étude / Conception", status: "done", advice: "Faites confirmer par écrit chaque modification apportée aux plans." },
+  { step: "Permis de construire", status: "done", advice: "Comptez les 2 mois d'instruction et le délai de recours des tiers avant d'ouvrir le chantier." },
+  { step: "Contrat constructeur", status: "done", advice: "Relisez la notice descriptive ligne à ligne — c'est elle qui protège en cas de litige." },
+  { step: "Ouverture de chantier", status: "done", advice: "Exigez les attestations d'assurance de tous les intervenants avant le premier coup de pelle." },
+  { step: "Gros œuvre", status: "done", advice: "Ne validez jamais un appel de fonds sans avoir vu l'avancement réel sur place." },
+  { step: "Second œuvre", status: "current", advice: "Conseil du fondateur : ne jamais couler de dalle sans l'attestation décennale en cours de validité en main." },
+  { step: "Finitions", status: "todo", advice: "Listez les réserves au fur et à mesure, ne les laissez pas s'accumuler pour la réception." },
+  { step: "Réception", status: "todo", advice: "La réception avec réserves déclenche des délais légaux précis — faites-vous accompagner ce jour-là." },
+  { step: "Livraison", status: "todo", advice: "Conservez tous les documents (garanties, PV de réception) : ils servent pendant 10 ans." },
+];
+
+// ===================== ESPACE PRO (constructeur) =====================
+export const proUser = { firstName: "Alexandre" };
+
+export const proStats = {
+  chantiers: 25,
+  alertesImportantes: 3,
+  caPrevisionnel: "6 240 000 €",
+  margeMoyenne: "16,8 %",
+};
+
+export const proAlerts: Alert[] = [
+  { id: "1", level: "rouge", title: "Chantier Martin : retard fournisseur", detail: "Livraison charpente décalée de 3 semaines." },
+  { id: "2", level: "rouge", title: "Client Dupont : document manquant", detail: "Attestation décennale non transmise." },
+  { id: "3", level: "orange", title: "Budget chantier Lefort : dépassement probable", detail: "Second œuvre +6% vs devis initial." },
+];
+
+export const proClients = [
+  { name: "Famille Martin", project: "Maison à Mérignac", step: "Charpente", level: "rouge" as const },
+  { name: "Famille Dupont", project: "Maison à Pessac", step: "Gros œuvre", level: "rouge" as const },
+  { name: "Famille Lefort", project: "Maison à Talence", step: "Second œuvre", level: "orange" as const },
+  { name: "Famille Girard", project: "Maison à Cenon", step: "Finitions", level: "vert" as const },
+  { name: "Famille Roux", project: "Maison à Bègles", step: "Fondations", level: "vert" as const },
+];
+
+export const proChantiers = proClients.map((c, i) => ({
+  ...c,
+  progress: [58, 44, 62, 88, 15][i],
+  coutPrevu: [245000, 268000, 231000, 252000, 239000][i],
+  coutReel: [201000, 178000, 210000, 233000, 38000][i],
+}));
+
+export const proTasksAuto = [
+  "Relance client Dupont — document manquant",
+  "Compte rendu hebdomadaire — Chantier Lefort",
+  "Mail fournisseur — confirmation nouvelle date charpente",
+];
+
+// ===================== ESPACE PROMOTEUR =====================
+export const promoteurUser = { firstName: "Sophie" };
+
+export const promoteurStats = {
+  operations: 9,
+  caPrevisionnel: "14 200 000 €",
+  margeMoyenne: "21,6 %",
+  alertes: 3,
+};
+
+export const promoteurAlerts: Alert[] = [
+  { id: "1", level: "rouge", title: "Retard VRD — Lotissement Val Fleuri", detail: "Impact planning estimé : 6 semaines." },
+  { id: "2", level: "rouge", title: "Dépassement budget lot 4 — Les Ateliers", detail: "Écart de +180 000 € vs budget initial." },
+  { id: "3", level: "orange", title: "Garantie financière d'achèvement à renouveler", detail: "Échéance le 14 septembre 2026." },
+];
+
+export const promoteurOperations = [
+  { name: "Les Terrasses du Lac", type: "Promotion — 42 lots", status: "Commercialisation", progress: 68, engage: "3,1 M€", budget: "4,4 M€", level: "vert" as const },
+  { name: "Lotissement Val Fleuri", type: "Aménagement — 18 lots", status: "Travaux VRD", progress: 45, engage: "1,2 M€", budget: "2,0 M€", level: "orange" as const },
+  { name: "Résidence Les Cèdres", type: "Promotion — 30 lots", status: "Permis purgé", progress: 20, engage: "0,4 M€", budget: "3,8 M€", level: "vert" as const },
+  { name: "Programme Les Ateliers", type: "MOD — équipement public", status: "Gros œuvre", progress: 55, engage: "2,7 M€", budget: "5,1 M€", level: "rouge" as const },
+];
+
+export const promoteurLots = [
+  { operation: "Les Terrasses du Lac", total: 42, reserves: 22, vendus: 18, disponibles: 2 },
+  { operation: "Résidence Les Cèdres", total: 30, reserves: 4, vendus: 0, disponibles: 26 },
+];
+
+export const promoteurAdmin = [
+  { item: "Permis de construire — Les Ateliers", status: "conforme" as const },
+  { item: "Acte notarié — Val Fleuri", status: "conforme" as const },
+  { item: "Garantie bancaire — Les Cèdres", status: "manquant" as const },
+  { item: "Convention partenaire foncier", status: "conforme" as const },
+];
