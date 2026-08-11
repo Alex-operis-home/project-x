@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
-import { AlertBadge } from "@/components/ui/AlertBadge";
+import { RuleCheck } from "@/components/RuleCheck";
 import { useHomeProject } from "@/lib/useHomeProject";
 import { rulesForStep } from "@/lib/rules";
 import { ChevronDown } from "lucide-react";
@@ -57,15 +57,9 @@ export default function PlanningPage() {
                     {s.advice && <p className="text-xs text-ink-soft leading-relaxed max-w-md pb-2">{s.advice}</p>}
 
                     {isOpen && stepRules.length > 0 && (
-                      <div className="mb-4 mt-1 bg-canvas rounded-lg p-4 space-y-3">
+                      <div className="mb-4 mt-1 space-y-2">
                         {stepRules.map((r) => (
-                          <div key={r.id} className="flex items-start gap-2.5">
-                            <AlertBadge level={r.level} />
-                            <div className="text-sm">
-                              <div className="font-medium leading-snug">{r.condition}</div>
-                              <div className="text-ink-soft text-xs mt-0.5">{r.advice}</div>
-                            </div>
-                          </div>
+                          <RuleCheck key={r.id} rule={r} />
                         ))}
                       </div>
                     )}

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/Stat";
 import { AlertBadge } from "@/components/ui/AlertBadge";
+import { RuleCheck } from "@/components/RuleCheck";
 import { proChantiers } from "@/lib/mock-data";
 import { rulesForStep } from "@/lib/rules";
 import { ChevronDown } from "lucide-react";
@@ -41,15 +42,9 @@ export default function ChantiersPage() {
               </div>
 
               {isOpen && (
-                <div className="mt-3 pt-3 border-t border-line space-y-3">
+                <div className="mt-3 pt-3 border-t border-line space-y-2">
                   {stepRules.map((r) => (
-                    <div key={r.id} className="flex items-start gap-2.5">
-                      <AlertBadge level={r.level} />
-                      <div className="text-sm">
-                        <div className="font-medium leading-snug">{r.condition}</div>
-                        <div className="text-ink-soft text-xs mt-0.5">{r.advice}</div>
-                      </div>
-                    </div>
+                    <RuleCheck key={r.id} rule={r} />
                   ))}
                 </div>
               )}
