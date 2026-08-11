@@ -16,7 +16,7 @@ export function RuleCheck({ rule }: { rule: Rule }) {
     return (
       <div className="flex items-center gap-2.5 rounded-lg border border-signal-green bg-signal-green-soft px-3 py-2.5">
         <CheckCircle2 size={16} className="text-signal-green flex-shrink-0" />
-        <span className="text-sm text-ink">{rule.condition}</span>
+        <span className="text-sm text-ink">{rule.positive}</span>
         <button onClick={() => setAnswered(null)} className="ml-auto text-xs text-ink-soft hover:underline flex-shrink-0">
           Revenir
         </button>
