@@ -25,7 +25,12 @@ export function useHomeProject() {
 
   useEffect(() => {
     let cancelled = false;
-    getOrCreateHomeProject()
+
+    const timeout = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("délai dépassé (8s) — la requête vers Supabase n'a jamais répondu")), 8000);
+    });
+
+    Promise.race([getOrCreateHomeProject(), timeout])
       .then((result) => {
         if (cancelled) return;
         if (result.debugError) setDebugError(result.debugError);
