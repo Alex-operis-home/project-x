@@ -7,7 +7,7 @@ import { rulesForStep } from "@/lib/rules";
 import { ChevronDown } from "lucide-react";
 
 export default function PlanningPage() {
-  const { steps, loading, demo } = useHomeProject();
+  const { steps, loading, demo, debugError } = useHomeProject();
   const [openStep, setOpenStep] = useState<string | null>(null);
 
   return (
@@ -15,7 +15,9 @@ export default function PlanningPage() {
       <h1 className="font-display text-2xl font-semibold">Planning</h1>
       {demo && (
         <div className="text-xs bg-gold-soft text-ink-soft rounded-lg p-3">
-          Données de démonstration — connecte-toi avec un compte réel (Supabase branché) pour voir et faire évoluer ton propre planning.
+          {debugError
+            ? `Connexion aux données réelles impossible : ${debugError}`
+            : "Données de démonstration — connecte-toi avec un compte réel (Supabase branché) pour voir et faire évoluer ton propre planning."}
         </div>
       )}
       <Card>

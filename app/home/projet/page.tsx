@@ -5,7 +5,7 @@ import { useHomeProject } from "@/lib/useHomeProject";
 import { homeProject } from "@/lib/mock-data";
 
 export default function ProjetPage() {
-  const { address, builder, currentStep, progress, demo } = useHomeProject();
+  const { address, builder, currentStep, progress, demo, debugError } = useHomeProject();
   const rows = [
     ["Adresse du projet", address],
     ["Constructeur", builder],
@@ -17,7 +17,9 @@ export default function ProjetPage() {
       <h1 className="font-display text-2xl font-semibold">Mon projet</h1>
       {demo && (
         <div className="text-xs bg-gold-soft text-ink-soft rounded-lg p-3">
-          Données de démonstration — connecte-toi avec un compte réel pour voir ton propre projet.
+          {debugError
+            ? `Connexion aux données réelles impossible : ${debugError}`
+            : "Données de démonstration — connecte-toi avec un compte réel pour voir ton propre projet."}
         </div>
       )}
       <Card>
