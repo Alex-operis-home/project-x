@@ -28,7 +28,6 @@ export default function HomeDashboard() {
         </div>
       )}
 
-      {/* HERO — cercle de progression + prochaine étape */}
       <div className="grid md:grid-cols-[260px_1fr] gap-5">
         <Card className="flex flex-col items-center justify-center gap-3">
           <ProgressRing value={progress} label="du parcours" />
@@ -46,23 +45,14 @@ export default function HomeDashboard() {
         </Card>
       </div>
 
-      {/* FRISE IMAGÉE */}
       <Card>
         <div className="flex items-center overflow-x-auto gap-0 pb-1">
           {homeFrise.map((s, i) => (
             <div key={s.label} className="flex flex-col items-center gap-1.5 min-w-[86px] relative">
               {i > 0 && (
-                <div
-                  className={`absolute top-5 right-1/2 w-full h-0.5 ${
-                    homeFrise[i - 1].done || homeFrise[i - 1].current ? "bg-gold" : "bg-line"
-                  }`}
-                />
+                <div className={`absolute top-5 right-1/2 w-full h-0.5 ${homeFrise[i - 1].done || homeFrise[i - 1].current ? "bg-gold" : "bg-line"}`} />
               )}
-              <div
-                className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                  s.current ? "bg-ink ring-4 ring-brand-soft" : s.done ? "bg-gold/15" : "bg-canvas"
-                }`}
-              >
+              <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center text-lg ${s.current ? "bg-ink ring-4 ring-brand-soft" : s.done ? "bg-gold/15" : "bg-canvas"}`}>
                 {s.icon}
               </div>
               <span className={`text-xs text-center ${s.current ? "font-semibold text-ink" : "text-ink-soft"}`}>{s.label}</span>
@@ -72,7 +62,6 @@ export default function HomeDashboard() {
       </Card>
 
       <div className="grid md:grid-cols-3 gap-5">
-        {/* Mes alertes */}
         <Card>
           <h3 className="font-semibold mb-4">Mes alertes</h3>
           <div className="space-y-3">
@@ -88,7 +77,6 @@ export default function HomeDashboard() {
           </div>
         </Card>
 
-        {/* Actions du jour */}
         <Card>
           <h3 className="font-semibold mb-4">Mes actions du jour</h3>
           <div className="space-y-3">
@@ -102,22 +90,13 @@ export default function HomeDashboard() {
           </div>
         </Card>
 
-        {/* Documents récents */}
         <Card>
           <h3 className="font-semibold mb-4">Documents récents</h3>
           <div className="space-y-2">
             {documents.slice(0, 3).map((d) => (
               <div key={d.id} className="flex items-center justify-between py-1.5">
                 <div className="text-sm font-medium">{d.name}</div>
-                <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    d.status === "conforme"
-                      ? "bg-signal-green-soft text-signal-green"
-                      : d.status === "manquant"
-                      ? "bg-signal-orange-soft text-signal-orange"
-                      : "bg-signal-red-soft text-signal-red"
-                  }`}
-                >
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${d.status === "conforme" ? "bg-signal-green-soft text-signal-green" : d.status === "manquant" ? "bg-signal-orange-soft text-signal-orange" : "bg-signal-red-soft text-signal-red"}`}>
                   {d.status}
                 </span>
               </div>
@@ -126,7 +105,6 @@ export default function HomeDashboard() {
         </Card>
       </div>
 
-      {/* Offres */}
       <Card>
         <h3 className="font-semibold mb-1">Passer à l'offre payante</h3>
         <p className="text-sm text-ink-soft mb-4">Choisissez la formule adaptée à votre projet.</p>
@@ -134,37 +112,26 @@ export default function HomeDashboard() {
           <div className="border border-line rounded-lg p-4 flex flex-col gap-2">
             <div className="font-semibold text-sm">Abonnement</div>
             <div className="font-display text-xl font-semibold">29€<span className="text-sm text-ink-soft font-sans">/mois</span></div>
-            <a href={stripeLinks.homeAbonnement} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-ink text-white text-xs font-semibold py-2 rounded-lg hover:bg-brand-dark transition-colors">
-              S'abonner
-            </a>
+            <a href={stripeLinks.homeAbonnement} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-ink text-white text-xs font-semibold py-2 rounded-lg hover:bg-brand-dark transition-colors">S'abonner</a>
           </div>
           <div className="border border-line rounded-lg p-4 flex flex-col gap-2">
             <div className="font-semibold text-sm">Forfait projet</div>
             <div className="font-display text-xl font-semibold">299€</div>
-            <a href={stripeLinks.homeForfait} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-ink text-white text-xs font-semibold py-2 rounded-lg hover:bg-brand-dark transition-colors">
-              Choisir
-            </a>
+            <a href={stripeLinks.homeForfait} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-ink text-white text-xs font-semibold py-2 rounded-lg hover:bg-brand-dark transition-colors">Choisir</a>
           </div>
           <div className="border border-gold rounded-lg p-4 flex flex-col gap-2 bg-gold-soft/40">
             <div className="font-semibold text-sm">Forfait Premium</div>
             <div className="font-display text-xl font-semibold">349€</div>
             <div className="text-xs text-ink-soft">+ coffre-fort documentaire</div>
-            <a href={stripeLinks.homePremium} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-gold text-white text-xs font-semibold py-2 rounded-lg hover:opacity-90 transition-opacity">
-              Choisir
-            </a>
+            <a href={stripeLinks.homePremium} target="_blank" rel="noopener noreferrer" className="mt-2 text-center bg-gold text-white text-xs font-semibold py-2 rounded-lg hover:opacity-90 transition-opacity">Choisir</a>
           </div>
         </div>
       </Card>
 
-      {/* Conversation avec Raymond */}
       <RaymondCard
         userName={name}
         intro="J'ai analysé ton dossier. Voici ce qui mérite ton attention aujourd'hui."
-        bullets={[
-          "Décennale manquante — à régulariser avant coulage",
-          "Appel de fonds n°4 dans 5 jours",
-          "Menuiseries à valider cette semaine",
-        ]}
+        bullets={["Décennale manquante — à régulariser avant coulage", "Appel de fonds n°4 dans 5 jours", "Menuiseries à valider cette semaine"]}
       />
     </div>
   );

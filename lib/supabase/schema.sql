@@ -19,7 +19,6 @@ create policy "profil modifiable par son propriétaire" on profiles for update u
 drop policy if exists "profil créé par son propriétaire" on profiles;
 create policy "profil créé par son propriétaire" on profiles for insert with check (auth.uid() = id);
 
--- Un "projet" = une maison (Home), un chantier (Pro) ou une opération (Promoteur)
 create table if not exists projects (
   id uuid primary key default uuid_generate_v4(),
   owner_id uuid references profiles(id) on delete cascade,
@@ -92,7 +91,6 @@ create policy "gérer les tâches de ses projets" on tasks for all using (
   project_id in (select id from projects where owner_id = auth.uid())
 );
 
--- Les 11 étapes du parcours Home, persistées par projet
 create table if not exists project_steps (
   id uuid primary key default uuid_generate_v4(),
   project_id uuid references projects(id) on delete cascade,
@@ -105,6 +103,7 @@ create table if not exists project_steps (
 alter table project_steps enable row level security;
 drop policy if exists "voir les étapes de ses projets" on project_steps;
 drop policy if exists "modifier les étapes de ses projets" on project_steps;
+drop policy if exists "gérer les étapes de ses projets" on project_steps;
 create policy "gérer les étapes de ses projets" on project_steps for all using (
   project_id in (select id from projects where owner_id = auth.uid())
 ) with check (

@@ -10,13 +10,7 @@ export default function AdministratifPage() {
           {promoteurAdmin.map((a) => (
             <div key={a.item} className="flex items-center justify-between py-2 border-b border-line last:border-0">
               <span className="text-sm font-medium">{a.item}</span>
-              <span
-                className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                  a.status === "conforme" ? "bg-signal-green-soft text-signal-green" : "bg-signal-orange-soft text-signal-orange"
-                }`}
-              >
-                {a.status}
-              </span>
+              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${a.status === "conforme" ? "bg-signal-green-soft text-signal-green" : "bg-signal-orange-soft text-signal-orange"}`}>{a.status}</span>
             </div>
           ))}
         </div>

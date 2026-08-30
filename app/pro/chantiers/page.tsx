@@ -31,21 +31,15 @@ export default function ChantiersPage() {
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs text-ink-soft">{c.progress}% d'avancement</span>
                 {stepRules.length > 0 && (
-                  <button
-                    onClick={() => setOpenChantier(isOpen ? null : c.name)}
-                    className="flex items-center gap-1 text-xs font-semibold text-brand"
-                  >
+                  <button onClick={() => setOpenChantier(isOpen ? null : c.name)} className="flex items-center gap-1 text-xs font-semibold text-brand">
                     {stepRules.length} règles Opéris
                     <ChevronDown size={14} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
                   </button>
                 )}
               </div>
-
               {isOpen && (
                 <div className="mt-3 pt-3 border-t border-line space-y-2">
-                  {stepRules.map((r) => (
-                    <RuleCheck key={r.id} rule={r} />
-                  ))}
+                  {stepRules.map((r) => (<RuleCheck key={r.id} rule={r} />))}
                 </div>
               )}
             </Card>

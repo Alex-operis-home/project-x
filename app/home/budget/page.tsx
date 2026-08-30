@@ -15,9 +15,7 @@ export default function BudgetPage() {
       <Card>
         <h3 className="font-semibold mb-4">Suivi budgétaire</h3>
         <ProgressBar value={pct} color="gold" />
-        <p className="text-sm text-ink-soft mt-3">
-          {pct}% du budget initial déjà engagé — cohérent avec l'avancement du chantier (Second œuvre).
-        </p>
+        <p className="text-sm text-ink-soft mt-3">{pct}% du budget initial déjà engagé — cohérent avec l'avancement du chantier (Second œuvre).</p>
       </Card>
     </div>
   );

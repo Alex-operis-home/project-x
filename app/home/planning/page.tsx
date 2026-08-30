@@ -33,36 +33,20 @@ export default function PlanningPage() {
                 const isOpen = openStep === key;
                 return (
                   <div key={key} className="relative">
-                    <span
-                      className={`absolute -left-6 top-2 w-3.5 h-3.5 rounded-full border-2 border-canvas ${
-                        s.status === "done" ? "bg-gold" : s.status === "current" ? "bg-brand ring-4 ring-brand-soft" : "bg-line"
-                      }`}
-                    />
-                    <button
-                      onClick={() => setOpenStep(isOpen ? null : key)}
-                      disabled={stepRules.length === 0}
-                      className="w-full flex items-center justify-between gap-3 py-2 text-left disabled:cursor-default"
-                    >
+                    <span className={`absolute -left-6 top-2 w-3.5 h-3.5 rounded-full border-2 border-canvas ${s.status === "done" ? "bg-gold" : s.status === "current" ? "bg-brand ring-4 ring-brand-soft" : "bg-line"}`} />
+                    <button onClick={() => setOpenStep(isOpen ? null : key)} disabled={stepRules.length === 0}
+                      className="w-full flex items-center justify-between gap-3 py-2 text-left disabled:cursor-default">
                       <span className="flex items-center gap-3">
                         <span className={`text-sm ${s.status === "todo" ? "text-ink-soft" : "font-semibold"}`}>{s.step}</span>
-                        {s.status === "current" && (
-                          <span className="text-xs bg-brand-soft text-brand font-semibold px-2 py-0.5 rounded-full">En cours</span>
-                        )}
-                        {stepRules.length > 0 && (
-                          <span className="text-xs text-ink-soft">{stepRules.length} règles Opéris</span>
-                        )}
+                        {s.status === "current" && <span className="text-xs bg-brand-soft text-brand font-semibold px-2 py-0.5 rounded-full">En cours</span>}
+                        {stepRules.length > 0 && <span className="text-xs text-ink-soft">{stepRules.length} règles Opéris</span>}
                       </span>
-                      {stepRules.length > 0 && (
-                        <ChevronDown size={16} className={`text-ink-soft transition-transform flex-shrink-0 ${isOpen ? "rotate-180" : ""}`} />
-                      )}
+                      {stepRules.length > 0 && <ChevronDown size={16} className={`text-ink-soft transition-transform flex-shrink-0 ${isOpen ? "rotate-180" : ""}`} />}
                     </button>
                     {s.advice && <p className="text-xs text-ink-soft leading-relaxed max-w-md pb-2">{s.advice}</p>}
-
                     {isOpen && stepRules.length > 0 && (
                       <div className="mb-4 mt-1 space-y-2">
-                        {stepRules.map((r) => (
-                          <RuleCheck key={r.id} rule={r} />
-                        ))}
+                        {stepRules.map((r) => (<RuleCheck key={r.id} rule={r} />))}
                       </div>
                     )}
                   </div>

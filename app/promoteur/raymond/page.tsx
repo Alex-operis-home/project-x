@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 
 type Msg = { from: "raymond" | "user"; text: string };
-
 const initial: Msg[] = [
   { from: "raymond", text: "Salut Sophie 👋 J'ai passé en revue vos 9 opérations." },
   { from: "raymond", text: "Deux points de vigilance : le retard VRD sur Val Fleuri qui menace le planning de 6 semaines, et un dépassement de budget sur le lot 4 des Ateliers." },
@@ -20,11 +19,7 @@ export default function RaymondPromoteurPage() {
     setValue("");
     setMessages((m) => [...m, { from: "user", text: question }]);
     try {
-      const res = await fetch("/api/raymond", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: question, space: "promoteur" }),
-      });
+      const res = await fetch("/api/raymond", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: question, space: "promoteur" }) });
       const json = await res.json();
       setMessages((m) => [...m, { from: "raymond", text: json.reply ?? "Raymond n'a pas pu répondre." }]);
     } catch {
@@ -39,9 +34,7 @@ export default function RaymondPromoteurPage() {
         <div className="flex-1 overflow-y-auto space-y-4 scrollbar-thin pr-2">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.from === "user" ? "bg-brand text-white" : "bg-canvas text-ink"}`}>
-                {m.text}
-              </div>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.from === "user" ? "bg-brand text-white" : "bg-canvas text-ink"}`}>{m.text}</div>
             </div>
           ))}
         </div>

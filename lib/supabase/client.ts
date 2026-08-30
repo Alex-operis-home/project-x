@@ -15,9 +15,6 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_AN
 let client: SupabaseClient | null = null;
 let configured = false;
 
-// createClient() lève une exception si l'URL est mal formée. On l'isole ici
-// pour qu'une valeur invalide ne puisse jamais faire planter la compilation
-// ni le site — dans ce cas l'app retombe simplement en mode démo.
 if (supabaseUrl && supabaseAnonKey) {
   try {
     client = createClient(supabaseUrl, supabaseAnonKey);
@@ -29,7 +26,4 @@ if (supabaseUrl && supabaseAnonKey) {
 }
 
 export const isSupabaseConfigured = configured;
-
-// En mode démo (aucune URL/clé disponible, ni env var ni secours), l'app
-// tourne uniquement sur les données d'exemple (lib/mock-data.ts).
 export const supabase = client;

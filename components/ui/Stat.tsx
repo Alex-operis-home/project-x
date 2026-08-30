@@ -7,19 +7,8 @@ export function ProgressBar({ value, color = "brand" }: { value: number; color?:
   );
 }
 
-export function StatCard({
-  label,
-  value,
-  hint,
-  hintTone = "neutral",
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  hintTone?: "up" | "down" | "neutral";
-}) {
-  const hintColor =
-    hintTone === "up" ? "text-signal-green" : hintTone === "down" ? "text-signal-red" : "text-ink-soft";
+export function StatCard({ label, value, hint, hintTone = "neutral" }: { label: string; value: string; hint?: string; hintTone?: "up" | "down" | "neutral" }) {
+  const hintColor = hintTone === "up" ? "text-signal-green" : hintTone === "down" ? "text-signal-red" : "text-ink-soft";
   return (
     <div className="bg-surface border border-line rounded-xl2 shadow-card p-6">
       <div className="text-sm text-ink-soft mb-2">{label}</div>

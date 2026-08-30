@@ -10,18 +10,9 @@ export default function CommercialisationPage() {
           <Card key={l.operation}>
             <h3 className="font-semibold mb-4">{l.operation}</h3>
             <div className="grid grid-cols-3 gap-3 text-center">
-              <div>
-                <div className="font-display text-2xl font-semibold text-signal-green">{l.vendus}</div>
-                <div className="text-xs text-ink-soft">Vendus</div>
-              </div>
-              <div>
-                <div className="font-display text-2xl font-semibold text-gold">{l.reserves}</div>
-                <div className="text-xs text-ink-soft">Réservés</div>
-              </div>
-              <div>
-                <div className="font-display text-2xl font-semibold text-ink-soft">{l.disponibles}</div>
-                <div className="text-xs text-ink-soft">Disponibles</div>
-              </div>
+              <div><div className="font-display text-2xl font-semibold text-signal-green">{l.vendus}</div><div className="text-xs text-ink-soft">Vendus</div></div>
+              <div><div className="font-display text-2xl font-semibold text-gold">{l.reserves}</div><div className="text-xs text-ink-soft">Réservés</div></div>
+              <div><div className="font-display text-2xl font-semibold text-ink-soft">{l.disponibles}</div><div className="text-xs text-ink-soft">Disponibles</div></div>
             </div>
             <div className="text-xs text-ink-soft mt-4 text-center">{l.total} lots au total</div>
           </Card>

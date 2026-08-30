@@ -6,7 +6,7 @@ export function useDisplayName(fallback: string): string {
   const [name, setName] = useState(fallback);
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return; // mode démo : garde le nom fictif
+    if (!isSupabaseConfigured || !supabase) return;
     supabase.auth.getUser().then(({ data }) => {
       const fullName = data.user?.user_metadata?.full_name as string | undefined;
       const firstName = fullName?.split(" ")[0];

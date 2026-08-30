@@ -14,10 +14,7 @@ export default function FinancierPage() {
       </div>
       <Card>
         <h3 className="font-semibold mb-4">Budget par opération</h3>
-        <DataTable
-          columns={["Opération", "Budget engagé", "Budget total"]}
-          rows={promoteurOperations.map((o) => [o.name, o.engage, o.budget])}
-        />
+        <DataTable columns={["Opération", "Budget engagé", "Budget total"]} rows={promoteurOperations.map((o) => [o.name, o.engage, o.budget])} />
       </Card>
     </div>
   );

@@ -14,16 +14,9 @@ export default function DocumentsPromoteurPage() {
       <h1 className="font-display text-2xl font-semibold">Documents</h1>
       <Card>
         <p className="text-sm text-ink-soft mb-4">Documents transverses, toutes opérations confondues.</p>
-        <DataTable
-          columns={["Document", "Catégorie", "Statut"]}
-          rows={homeDocuments.map((d) => [
-            d.name,
-            d.category,
-            <span key={d.id} className={`text-xs font-semibold px-2 py-1 rounded-full ${statusStyle[d.status]}`}>
-              {d.status}
-            </span>,
-          ])}
-        />
+        <DataTable columns={["Document", "Catégorie", "Statut"]} rows={homeDocuments.map((d) => [
+          d.name, d.category, <span key={d.id} className={`text-xs font-semibold px-2 py-1 rounded-full ${statusStyle[d.status]}`}>{d.status}</span>,
+        ])} />
       </Card>
     </div>
   );

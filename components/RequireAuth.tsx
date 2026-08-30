@@ -8,7 +8,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(!isSupabaseConfigured);
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return; // mode démo : accès libre
+    if (!isSupabaseConfigured || !supabase) return;
 
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) {

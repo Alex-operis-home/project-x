@@ -49,7 +49,6 @@ export const homeAlerts: Alert[] = [
   alertFromRule("12", "constr-10", "Deux réserves ouvertes depuis la précédente visite"),
 ];
 
-// Frise imagée du prototype Opéris — vision simplifiée et rassurante du chantier
 export const homeFrise = [
   { icon: "🌱", label: "Terrain", done: true },
   { icon: "🧱", label: "Fondations", done: true },

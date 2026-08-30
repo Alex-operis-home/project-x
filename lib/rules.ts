@@ -3,21 +3,18 @@
 // Format : condition (négatif, le risque) → positive (l'état une fois traité)
 //          → niveau d'alerte → conseil du fondateur
 // Source : Dossier technique Opéris Home V1, Partie 2.
-// Ne pas disperser ces règles dans les composants — toute
-// alerte générée dans l'app doit référencer une règle d'ici
-// par son id, pour rester traçable.
 // =========================================================
 
 export type RuleCategory = "terrain" | "administratif" | "financement" | "construction" | "livraison";
 export type RuleLevel = "vert" | "orange" | "rouge";
 
 export type Rule = {
-  id: string; // ex: "terrain-01"
+  id: string;
   category: RuleCategory;
-  condition: string; // le risque, formulé au négatif
-  positive: string; // l'état une fois traité, formulé au positif
+  condition: string;
+  positive: string;
   level: RuleLevel;
-  advice: string; // conseil du fondateur
+  advice: string;
 };
 
 export const ruleCategories: { key: RuleCategory; label: string }[] = [
@@ -29,7 +26,6 @@ export const ruleCategories: { key: RuleCategory; label: string }[] = [
 ];
 
 export const rules: Rule[] = [
-  // ---------- Terrain ----------
   { id: "terrain-01", category: "terrain", level: "rouge", condition: "Étude de sol (G1/G2) absente avant dépôt du permis", positive: "Étude de sol (G1/G2) réalisée", advice: "Aucune construction ne devrait être engagée sans étude géotechnique, même sur terrain « réputé bon »." },
   { id: "terrain-02", category: "terrain", level: "orange", condition: "Certificat d'urbanisme non demandé avant compromis", positive: "Certificat d'urbanisme obtenu", advice: "Toujours vérifier la constructibilité réelle avant signature." },
   { id: "terrain-03", category: "terrain", level: "rouge", condition: "Raccordement viabilisation non confirmé (eau, électricité, assainissement)", positive: "Viabilisation confirmée", advice: "Un terrain non viabilisé peut faire dériver le budget de 10 à 20 %." },
@@ -41,7 +37,6 @@ export const rules: Rule[] = [
   { id: "terrain-09", category: "terrain", level: "orange", condition: "Accès chantier non confirmé (largeur voirie, servitude de passage)", positive: "Accès chantier confirmé", advice: "Vérifier avant commande des matériaux lourds." },
   { id: "terrain-10", category: "terrain", level: "orange", condition: "Document d'arpentage manquant pour un terrain à diviser", positive: "Document d'arpentage obtenu", advice: "Nécessaire pour toute division parcellaire." },
 
-  // ---------- Administratif ----------
   { id: "admin-01", category: "administratif", level: "rouge", condition: "Permis de construire non affiché sur le terrain", positive: "Permis de construire affiché", advice: "Défaut d'affichage = risque de recours prolongé." },
   { id: "admin-02", category: "administratif", level: "orange", condition: "Délai de recours des tiers (2 mois) non expiré avant démarrage", positive: "Délai de recours des tiers purgé", advice: "Attendre la purge du délai sécurise juridiquement le chantier." },
   { id: "admin-03", category: "administratif", level: "rouge", condition: "Déclaration d'ouverture de chantier (DOC) non déposée", positive: "Déclaration d'ouverture de chantier déposée", advice: "Obligatoire avant le premier coup de pelle." },
@@ -53,7 +48,6 @@ export const rules: Rule[] = [
   { id: "admin-09", category: "administratif", level: "rouge", condition: "Contrat de construction (CCMI) non conforme à la loi de 1990", positive: "Contrat CCMI conforme à la loi de 1990", advice: "Vérifier les mentions obligatoires (délais, pénalités, garanties)." },
   { id: "admin-10", category: "administratif", level: "orange", condition: "Déclaration d'achèvement des travaux (DAACT) non déposée", positive: "DAACT déposée", advice: "Nécessaire pour purger le contrôle de conformité." },
 
-  // ---------- Financement ----------
   { id: "finance-01", category: "financement", level: "rouge", condition: "Offre de prêt non éditée avant le début des appels de fonds", positive: "Offre de prêt éditée", advice: "Ne jamais démarrer les paiements sans financement sécurisé." },
   { id: "finance-02", category: "financement", level: "rouge", condition: "Appel de fonds non corrélé à l'avancement réel du chantier", positive: "Appel de fonds corrélé à l'avancement réel", advice: "Toujours vérifier l'état d'avancement avant de payer un appel de fonds." },
   { id: "finance-03", category: "financement", level: "orange", condition: "Dépassement budgétaire non tracé (delta prévisionnel/réel)", positive: "Suivi budgétaire prévisionnel/réel à jour", advice: "Un suivi mensuel évite les mauvaises surprises en fin de chantier." },
@@ -65,7 +59,6 @@ export const rules: Rule[] = [
   { id: "finance-09", category: "financement", level: "orange", condition: "Frais annexes (notaire, garantie, raccordements) sous-évalués", positive: "Frais annexes correctement budgétés", advice: "Prévoir 8 à 10 % de marge sur le budget global." },
   { id: "finance-10", category: "financement", level: "rouge", condition: "Échéancier de paiement non aligné sur le calendrier légal (loi 1990)", positive: "Échéancier aligné sur le calendrier légal", advice: "Le respect du calendrier légal protège le client des dérives de trésorerie." },
 
-  // ---------- Construction ----------
   { id: "constr-01", category: "construction", level: "rouge", condition: "Étape non validée avant passage à l'étape suivante", positive: "Étape formellement validée", advice: "Ne jamais avancer une étape sans validation formelle de la précédente." },
   { id: "constr-02", category: "construction", level: "orange", condition: "Retard de plus de 15 jours non signalé", positive: "Retards signalés et suivis", advice: "Tout retard doit déclencher une communication écrite avec le constructeur." },
   { id: "constr-03", category: "construction", level: "orange", condition: "Intervention d'un corps de métier non planifiée", positive: "Interventions planifiées", advice: "Un planning prévisionnel partagé limite les conflits d'intervenants." },
@@ -77,7 +70,6 @@ export const rules: Rule[] = [
   { id: "constr-09", category: "construction", level: "rouge", condition: "Intervention d'une entreprise sans assurance à jour", positive: "Assurances des entreprises à jour", advice: "Contrôle systématique avant chaque intervention sur site." },
   { id: "constr-10", category: "construction", level: "orange", condition: "Réserves de la précédente étape non levées", positive: "Réserves précédentes levées", advice: "Ne jamais laisser s'accumuler les réserves non traitées." },
 
-  // ---------- Livraison ----------
   { id: "livr-01", category: "livraison", level: "rouge", condition: "Réception des travaux réalisée sans réserves formalisées par écrit", positive: "Réserves de réception formalisées par écrit", advice: "Toute réserve doit figurer sur le procès-verbal, à défaut elle est perdue." },
   { id: "livr-02", category: "livraison", level: "orange", condition: "Notices d'entretien des équipements non transmises", positive: "Notices d'entretien transmises", advice: "À exiger systématiquement à la remise des clés." },
   { id: "livr-03", category: "livraison", level: "rouge", condition: "Garanties (parfait achèvement, biennale, décennale) non archivées", positive: "Garanties archivées", advice: "Conserver ces documents pendant toute la durée légale de garantie." },
@@ -98,9 +90,6 @@ export function rulesByCategory(category: RuleCategory): Rule[] {
   return rules.filter((r) => r.category === category);
 }
 
-// Associe chaque étape du parcours (Home) ou chaque phase de chantier (Pro)
-// à sa catégorie de règles — utilisé pour afficher les règles pertinentes
-// directement dans le contexte de l'étape, plutôt que dans un menu séparé.
 export const stepToCategory: Record<string, RuleCategory> = {
   "Terrain": "terrain",
   "Financement": "financement",
@@ -122,7 +111,6 @@ export function rulesForStep(stepName: string): Rule[] {
   return category ? rulesByCategory(category) : [];
 }
 
-// Pondération du score de risque global (cahier technique, Partie 4)
 export const levelWeight: Record<RuleLevel, number> = { rouge: -15, orange: -5, vert: 0 };
 
 export function computeRiskScore(triggeredLevels: RuleLevel[]): number {

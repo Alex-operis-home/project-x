@@ -1,21 +1,16 @@
-"use client";
 import { Card } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/Stat";
 import { AlertBadge } from "@/components/ui/AlertBadge";
 import { RaymondCard } from "@/components/RaymondCard";
-import { useDisplayName } from "@/lib/useDisplayName";
 import { stripeLinks } from "@/lib/stripe-links";
 import { proUser, proStats, proAlerts, proClients } from "@/lib/mock-data";
 
 export default function ProDashboard() {
-  const name = useDisplayName(proUser.firstName);
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="font-display text-2xl font-semibold">Salut {name} 👋</h1>
-        <p className="text-ink-soft mt-1">
-          J'ai regardé tes {proStats.chantiers} chantiers. Aujourd'hui : {proStats.alertesImportantes} alertes importantes.
-        </p>
+        <h1 className="font-display text-2xl font-semibold">Salut {proUser.firstName} 👋</h1>
+        <p className="text-ink-soft mt-1">J'ai regardé tes {proStats.chantiers} chantiers. Aujourd'hui : {proStats.alertesImportantes} alertes importantes.</p>
       </div>
 
       <div className="grid sm:grid-cols-4 gap-5">
@@ -41,15 +36,7 @@ export default function ProDashboard() {
           </div>
         </Card>
 
-        <RaymondCard
-          userName={name}
-          intro="J'ai regardé tes 25 chantiers."
-          bullets={[
-            "Chantier Martin : retard fournisseur",
-            "Client Dupont : document manquant",
-            "Budget chantier Lefort : dépassement probable",
-          ]}
-        />
+        <RaymondCard userName={proUser.firstName} intro="J'ai regardé tes 25 chantiers." bullets={["Chantier Martin : retard fournisseur", "Client Dupont : document manquant", "Budget chantier Lefort : dépassement probable"]} />
       </div>
 
       <Card>

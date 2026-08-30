@@ -1,17 +1,14 @@
-"use client";
 import { Card } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/Stat";
 import { AlertBadge } from "@/components/ui/AlertBadge";
 import { RaymondCard } from "@/components/RaymondCard";
-import { useDisplayName } from "@/lib/useDisplayName";
 import { promoteurUser, promoteurStats, promoteurAlerts, promoteurOperations } from "@/lib/mock-data";
 
 export default function PromoteurDashboard() {
-  const name = useDisplayName(promoteurUser.firstName);
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="font-display text-2xl font-semibold">Salut {name} 👋</h1>
+        <h1 className="font-display text-2xl font-semibold">Salut {promoteurUser.firstName} 👋</h1>
         <p className="text-ink-soft mt-1">Voici l'état de votre portefeuille d'opérations aujourd'hui.</p>
       </div>
 
@@ -38,15 +35,7 @@ export default function PromoteurDashboard() {
           </div>
         </Card>
 
-        <RaymondCard
-          userName={name}
-          intro="J'ai passé en revue vos 9 opérations."
-          bullets={[
-            "Val Fleuri : retard VRD à anticiper",
-            "Les Ateliers : dépassement budget lot 4",
-            "Garantie financière à renouveler avant le 14/09",
-          ]}
-        />
+        <RaymondCard userName={promoteurUser.firstName} intro="J'ai passé en revue vos 9 opérations." bullets={["Val Fleuri : retard VRD à anticiper", "Les Ateliers : dépassement budget lot 4", "Garantie financière à renouveler avant le 14/09"]} />
       </div>
 
       <Card>

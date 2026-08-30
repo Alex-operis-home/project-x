@@ -42,26 +42,17 @@ export type HomeProjectResult = {
   debugError: string | null;
 };
 
-// S'assure qu'un profil existe pour l'utilisateur connecté (obligatoire avant
-// de créer un projet, car projects.owner_id référence profiles.id).
 async function ensureProfile(userId: string): Promise<string | null> {
   if (!supabase) return null;
   const { data: userData } = await supabase.auth.getUser();
   const meta = userData.user?.user_metadata as { space?: string; full_name?: string } | undefined;
   const { error } = await supabase.from("profiles").upsert(
-    {
-      id: userId,
-      space: meta?.space ?? "home",
-      full_name: meta?.full_name ?? null,
-    },
+    { id: userId, space: meta?.space ?? "home", full_name: meta?.full_name ?? null },
     { onConflict: "id", ignoreDuplicates: true }
   );
   return error ? `profil: ${error.message}` : null;
 }
 
-// Récupère le projet Home de l'utilisateur connecté, ou le crée (avec ses 11
-// étapes, alertes et documents de départ) s'il n'en a pas encore.
-// debugError contient le message d'erreur exact en cas d'échec, pour diagnostic.
 export async function getOrCreateHomeProject(): Promise<HomeProjectResult> {
   const empty: HomeProjectResult = { project: null, steps: [], alerts: [], documents: [], debugError: null };
   if (!isSupabaseConfigured || !supabase) return empty;
@@ -156,13 +147,11 @@ async function getOrCreateHomeProjectUnsafe(empty: HomeProjectResult): Promise<H
   };
 }
 
-// Met à jour le statut d'une étape (utilisée plus tard pour rendre le planning interactif).
 export async function updateStepStatus(stepId: string, status: DbStep["status"]) {
   if (!isSupabaseConfigured || !supabase) return;
   await supabase.from("project_steps").update({ status }).eq("id", stepId);
 }
 
-// Ajoute un document au projet Home de l'utilisateur connecté.
 export async function addDocument(
   projectId: string,
   doc: { name: string; category: string }

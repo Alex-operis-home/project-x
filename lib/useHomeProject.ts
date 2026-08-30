@@ -38,20 +38,9 @@ export function useHomeProject() {
           setDemo(false);
           setProjectId(result.project.id);
           setAddress(result.project.address);
-          setSteps(
-            result.steps.map((s: DbStep) => ({ id: s.id, step: s.step_name, status: s.status, advice: s.advice ?? "" }))
-          );
-          setAlerts(
-            result.alerts.map((a: DbAlert) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail ?? "" }))
-          );
-          setDocuments(
-            result.documents.map((d: DbDocument) => ({
-              id: d.id,
-              name: d.name,
-              category: d.category ?? "",
-              status: d.status,
-            }))
-          );
+          setSteps(result.steps.map((s: DbStep) => ({ id: s.id, step: s.step_name, status: s.status, advice: s.advice ?? "" })));
+          setAlerts(result.alerts.map((a: DbAlert) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail ?? "" })));
+          setDocuments(result.documents.map((d: DbDocument) => ({ id: d.id, name: d.name, category: d.category ?? "", status: d.status })));
         }
         setLoading(false);
       })
@@ -80,7 +69,6 @@ export function useHomeProject() {
         setDebugError(`ajout document: ${error}`);
       }
     } else {
-      // Mode démo : ajout local uniquement (non persisté)
       setDocuments((prev) => [...prev, { id: `local-${Date.now()}`, name, category, status: "conforme" }]);
     }
   }
@@ -90,7 +78,7 @@ export function useHomeProject() {
     demo,
     debugError,
     address,
-    builder: homeProject.builder, // pas encore en base — reste en démo pour l'instant
+    builder: homeProject.builder,
     steps,
     alerts,
     addDocument,

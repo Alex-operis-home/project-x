@@ -8,10 +8,7 @@ export default function ClientsPage() {
     <div className="space-y-6">
       <h1 className="font-display text-2xl font-semibold">Clients</h1>
       <Card>
-        <DataTable
-          columns={["Client", "Projet", "Étape", "Statut"]}
-          rows={proClients.map((c) => [c.name, c.project, c.step, <AlertBadge key={c.name} level={c.level} />])}
-        />
+        <DataTable columns={["Client", "Projet", "Étape", "Statut"]} rows={proClients.map((c) => [c.name, c.project, c.step, <AlertBadge key={c.name} level={c.level} />])} />
       </Card>
     </div>
   );
