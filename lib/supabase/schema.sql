@@ -1,6 +1,6 @@
 -- =========================================================
 -- PROJECT X — Schéma Supabase (Home / Pro / Promoteur)
--- Ce fichier peut être rejoué en entier à tout moment sans erreur.
+-- Rejouable en entier à tout moment sans erreur.
 -- =========================================================
 create extension if not exists "uuid-ossp";
 
@@ -52,9 +52,7 @@ drop policy if exists "voir les alertes de ses projets" on alerts;
 drop policy if exists "gérer les alertes de ses projets" on alerts;
 create policy "gérer les alertes de ses projets" on alerts for all using (
   project_id in (select id from projects where owner_id = auth.uid())
-) with check (
-  project_id in (select id from projects where owner_id = auth.uid())
-);
+) with check (project_id in (select id from projects where owner_id = auth.uid()));
 
 create table if not exists documents (
   id uuid primary key default uuid_generate_v4(),
@@ -70,9 +68,7 @@ drop policy if exists "voir les documents de ses projets" on documents;
 drop policy if exists "gérer les documents de ses projets" on documents;
 create policy "gérer les documents de ses projets" on documents for all using (
   project_id in (select id from projects where owner_id = auth.uid())
-) with check (
-  project_id in (select id from projects where owner_id = auth.uid())
-);
+) with check (project_id in (select id from projects where owner_id = auth.uid()));
 
 create table if not exists tasks (
   id uuid primary key default uuid_generate_v4(),
@@ -87,9 +83,7 @@ drop policy if exists "voir les tâches de ses projets" on tasks;
 drop policy if exists "gérer les tâches de ses projets" on tasks;
 create policy "gérer les tâches de ses projets" on tasks for all using (
   project_id in (select id from projects where owner_id = auth.uid())
-) with check (
-  project_id in (select id from projects where owner_id = auth.uid())
-);
+) with check (project_id in (select id from projects where owner_id = auth.uid()));
 
 create table if not exists project_steps (
   id uuid primary key default uuid_generate_v4(),
@@ -106,6 +100,4 @@ drop policy if exists "modifier les étapes de ses projets" on project_steps;
 drop policy if exists "gérer les étapes de ses projets" on project_steps;
 create policy "gérer les étapes de ses projets" on project_steps for all using (
   project_id in (select id from projects where owner_id = auth.uid())
-) with check (
-  project_id in (select id from projects where owner_id = auth.uid())
-);
+) with check (project_id in (select id from projects where owner_id = auth.uid()));

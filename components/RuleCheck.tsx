@@ -2,16 +2,9 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import type { Rule } from "@/lib/rules";
-
-const frameStyle: Record<Rule["level"], string> = {
-  rouge: "border-signal-red bg-signal-red-soft",
-  orange: "border-signal-orange bg-signal-orange-soft",
-  vert: "border-signal-green bg-signal-green-soft",
-};
-
+const frameStyle: Record<Rule["level"], string> = { rouge: "border-signal-red bg-signal-red-soft", orange: "border-signal-orange bg-signal-orange-soft", vert: "border-signal-green bg-signal-green-soft" };
 export function RuleCheck({ rule }: { rule: Rule }) {
   const [answered, setAnswered] = useState<"oui" | "non" | null>(null);
-
   if (answered === "oui") {
     return (
       <div className="flex items-center gap-2.5 rounded-lg border border-signal-green bg-signal-green-soft px-3 py-2.5">
@@ -21,7 +14,6 @@ export function RuleCheck({ rule }: { rule: Rule }) {
       </div>
     );
   }
-
   if (answered === "non") {
     return (
       <div className={`rounded-lg border px-3 py-2.5 ${frameStyle[rule.level]}`}>
@@ -31,7 +23,6 @@ export function RuleCheck({ rule }: { rule: Rule }) {
       </div>
     );
   }
-
   return (
     <div className="flex items-center gap-3 rounded-lg border border-line px-3 py-2.5">
       <span className="text-sm text-ink flex-1">{rule.condition}</span>

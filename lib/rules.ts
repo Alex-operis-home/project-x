@@ -1,21 +1,6 @@
-// =========================================================
-// LES 50 RÈGLES OPÉRIS — couche métier centralisée
-// Format : condition (négatif, le risque) → positive (l'état une fois traité)
-//          → niveau d'alerte → conseil du fondateur
-// Source : Dossier technique Opéris Home V1, Partie 2.
-// =========================================================
-
 export type RuleCategory = "terrain" | "administratif" | "financement" | "construction" | "livraison";
 export type RuleLevel = "vert" | "orange" | "rouge";
-
-export type Rule = {
-  id: string;
-  category: RuleCategory;
-  condition: string;
-  positive: string;
-  level: RuleLevel;
-  advice: string;
-};
+export type Rule = { id: string; category: RuleCategory; condition: string; positive: string; level: RuleLevel; advice: string };
 
 export const ruleCategories: { key: RuleCategory; label: string }[] = [
   { key: "terrain", label: "Terrain" },
@@ -36,7 +21,6 @@ export const rules: Rule[] = [
   { id: "terrain-08", category: "terrain", level: "orange", condition: "Nature du sol argileux non signalée à l'assureur/constructeur", positive: "Nature argileuse du sol signalée", advice: "Impact direct sur les fondations et l'assurance dommages-ouvrage." },
   { id: "terrain-09", category: "terrain", level: "orange", condition: "Accès chantier non confirmé (largeur voirie, servitude de passage)", positive: "Accès chantier confirmé", advice: "Vérifier avant commande des matériaux lourds." },
   { id: "terrain-10", category: "terrain", level: "orange", condition: "Document d'arpentage manquant pour un terrain à diviser", positive: "Document d'arpentage obtenu", advice: "Nécessaire pour toute division parcellaire." },
-
   { id: "admin-01", category: "administratif", level: "rouge", condition: "Permis de construire non affiché sur le terrain", positive: "Permis de construire affiché", advice: "Défaut d'affichage = risque de recours prolongé." },
   { id: "admin-02", category: "administratif", level: "orange", condition: "Délai de recours des tiers (2 mois) non expiré avant démarrage", positive: "Délai de recours des tiers purgé", advice: "Attendre la purge du délai sécurise juridiquement le chantier." },
   { id: "admin-03", category: "administratif", level: "rouge", condition: "Déclaration d'ouverture de chantier (DOC) non déposée", positive: "Déclaration d'ouverture de chantier déposée", advice: "Obligatoire avant le premier coup de pelle." },
@@ -47,7 +31,6 @@ export const rules: Rule[] = [
   { id: "admin-08", category: "administratif", level: "orange", condition: "Taxe d'aménagement non anticipée dans le budget", positive: "Taxe d'aménagement anticipée au budget", advice: "Prévoir ce coût dès le plan de financement initial." },
   { id: "admin-09", category: "administratif", level: "rouge", condition: "Contrat de construction (CCMI) non conforme à la loi de 1990", positive: "Contrat CCMI conforme à la loi de 1990", advice: "Vérifier les mentions obligatoires (délais, pénalités, garanties)." },
   { id: "admin-10", category: "administratif", level: "orange", condition: "Déclaration d'achèvement des travaux (DAACT) non déposée", positive: "DAACT déposée", advice: "Nécessaire pour purger le contrôle de conformité." },
-
   { id: "finance-01", category: "financement", level: "rouge", condition: "Offre de prêt non éditée avant le début des appels de fonds", positive: "Offre de prêt éditée", advice: "Ne jamais démarrer les paiements sans financement sécurisé." },
   { id: "finance-02", category: "financement", level: "rouge", condition: "Appel de fonds non corrélé à l'avancement réel du chantier", positive: "Appel de fonds corrélé à l'avancement réel", advice: "Toujours vérifier l'état d'avancement avant de payer un appel de fonds." },
   { id: "finance-03", category: "financement", level: "orange", condition: "Dépassement budgétaire non tracé (delta prévisionnel/réel)", positive: "Suivi budgétaire prévisionnel/réel à jour", advice: "Un suivi mensuel évite les mauvaises surprises en fin de chantier." },
@@ -58,7 +41,6 @@ export const rules: Rule[] = [
   { id: "finance-08", category: "financement", level: "orange", condition: "Facture d'entreprise sans mention du numéro de décennale", positive: "Factures avec numéro de décennale mentionné", advice: "Élément de preuve en cas de sinistre futur." },
   { id: "finance-09", category: "financement", level: "orange", condition: "Frais annexes (notaire, garantie, raccordements) sous-évalués", positive: "Frais annexes correctement budgétés", advice: "Prévoir 8 à 10 % de marge sur le budget global." },
   { id: "finance-10", category: "financement", level: "rouge", condition: "Échéancier de paiement non aligné sur le calendrier légal (loi 1990)", positive: "Échéancier aligné sur le calendrier légal", advice: "Le respect du calendrier légal protège le client des dérives de trésorerie." },
-
   { id: "constr-01", category: "construction", level: "rouge", condition: "Étape non validée avant passage à l'étape suivante", positive: "Étape formellement validée", advice: "Ne jamais avancer une étape sans validation formelle de la précédente." },
   { id: "constr-02", category: "construction", level: "orange", condition: "Retard de plus de 15 jours non signalé", positive: "Retards signalés et suivis", advice: "Tout retard doit déclencher une communication écrite avec le constructeur." },
   { id: "constr-03", category: "construction", level: "orange", condition: "Intervention d'un corps de métier non planifiée", positive: "Interventions planifiées", advice: "Un planning prévisionnel partagé limite les conflits d'intervenants." },
@@ -69,7 +51,6 @@ export const rules: Rule[] = [
   { id: "constr-08", category: "construction", level: "rouge", condition: "Non-respect des normes RE2020 non vérifié", positive: "Conformité RE2020 vérifiée", advice: "Vérifier la conformité énergétique avant la pose de l'isolation." },
   { id: "constr-09", category: "construction", level: "rouge", condition: "Intervention d'une entreprise sans assurance à jour", positive: "Assurances des entreprises à jour", advice: "Contrôle systématique avant chaque intervention sur site." },
   { id: "constr-10", category: "construction", level: "orange", condition: "Réserves de la précédente étape non levées", positive: "Réserves précédentes levées", advice: "Ne jamais laisser s'accumuler les réserves non traitées." },
-
   { id: "livr-01", category: "livraison", level: "rouge", condition: "Réception des travaux réalisée sans réserves formalisées par écrit", positive: "Réserves de réception formalisées par écrit", advice: "Toute réserve doit figurer sur le procès-verbal, à défaut elle est perdue." },
   { id: "livr-02", category: "livraison", level: "orange", condition: "Notices d'entretien des équipements non transmises", positive: "Notices d'entretien transmises", advice: "À exiger systématiquement à la remise des clés." },
   { id: "livr-03", category: "livraison", level: "rouge", condition: "Garanties (parfait achèvement, biennale, décennale) non archivées", positive: "Garanties archivées", advice: "Conserver ces documents pendant toute la durée légale de garantie." },
@@ -82,28 +63,15 @@ export const rules: Rule[] = [
   { id: "livr-10", category: "livraison", level: "orange", condition: "Garantie de parfait achèvement (1 an) non suivie via rappel automatique", positive: "Rappel de garantie de parfait achèvement programmé", advice: "Programmer un rappel un mois avant l'échéance des 12 mois." },
 ];
 
-export function getRule(id: string): Rule | undefined {
-  return rules.find((r) => r.id === id);
-}
-
-export function rulesByCategory(category: RuleCategory): Rule[] {
-  return rules.filter((r) => r.category === category);
-}
+export function getRule(id: string): Rule | undefined { return rules.find((r) => r.id === id); }
+export function rulesByCategory(category: RuleCategory): Rule[] { return rules.filter((r) => r.category === category); }
 
 export const stepToCategory: Record<string, RuleCategory> = {
-  "Terrain": "terrain",
-  "Financement": "financement",
-  "Étude / Conception": "administratif",
-  "Permis de construire": "administratif",
-  "Contrat constructeur": "administratif",
-  "Ouverture de chantier": "administratif",
-  "Fondations": "construction",
-  "Gros œuvre": "construction",
-  "Charpente": "construction",
-  "Second œuvre": "construction",
-  "Finitions": "construction",
-  "Réception": "livraison",
-  "Livraison": "livraison",
+  "Terrain": "terrain", "Financement": "financement", "Étude / Conception": "administratif",
+  "Permis de construire": "administratif", "Permis purgé": "administratif", "Contrat constructeur": "administratif",
+  "Ouverture de chantier": "administratif", "Fondations": "construction", "Gros œuvre": "construction",
+  "Charpente": "construction", "Second œuvre": "construction", "Finitions": "construction",
+  "Travaux VRD": "construction", "Réception": "livraison", "Livraison": "livraison",
 };
 
 export function rulesForStep(stepName: string): Rule[] {
@@ -112,7 +80,6 @@ export function rulesForStep(stepName: string): Rule[] {
 }
 
 export const levelWeight: Record<RuleLevel, number> = { rouge: -15, orange: -5, vert: 0 };
-
 export function computeRiskScore(triggeredLevels: RuleLevel[]): number {
   const total = triggeredLevels.reduce((sum, level) => sum + levelWeight[level], 100);
   return Math.max(0, Math.min(100, total));

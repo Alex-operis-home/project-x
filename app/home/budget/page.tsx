@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/Card";
 import { StatCard, ProgressBar } from "@/components/ui/Stat";
 import { homeBudget } from "@/lib/mock-data";
-
 export default function BudgetPage() {
   const pct = Math.round((homeBudget.spent / homeBudget.planned) * 100);
   return (

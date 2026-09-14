@@ -17,11 +17,8 @@ export default function Home() {
         </div>
         <div className="grid md:grid-cols-3 gap-5">
           {spaces.map((s) => (
-            <Link
-              key={s.key}
-              href={isSupabaseConfigured ? `/login?espace=${s.key}` : `/${s.key}`}
-              className="group bg-surface border border-line rounded-xl2 shadow-card p-7 hover:shadow-floating hover:-translate-y-0.5 transition-all"
-            >
+            <Link key={s.key} href={isSupabaseConfigured ? `/login?espace=${s.key}` : `/${s.key}`}
+              className="group bg-surface border border-line rounded-xl2 shadow-card p-7 hover:shadow-floating hover:-translate-y-0.5 transition-all">
               <div className="text-xs font-semibold text-brand uppercase tracking-wide mb-3">{s.audience}</div>
               <h2 className="font-display text-xl font-semibold mb-2">{s.title}</h2>
               <p className="text-sm text-ink-soft leading-relaxed">{s.desc}</p>

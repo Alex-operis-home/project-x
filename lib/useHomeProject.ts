@@ -13,23 +13,15 @@ export function useHomeProject() {
   const [debugError, setDebugError] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(homeProject.address);
-  const [steps, setSteps] = useState<StepView[]>(
-    homePlanning.map((s) => ({ step: s.step, status: s.status as StepView["status"], advice: s.advice }))
-  );
-  const [alerts, setAlerts] = useState<AlertView[]>(
-    homeAlerts.map((a) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail }))
-  );
-  const [documents, setDocuments] = useState<DocView[]>(
-    homeDocuments.map((d) => ({ id: d.id, name: d.name, category: d.category, status: d.status }))
-  );
+  const [steps, setSteps] = useState<StepView[]>(homePlanning.map((s) => ({ step: s.step, status: s.status as StepView["status"], advice: s.advice })));
+  const [alerts, setAlerts] = useState<AlertView[]>(homeAlerts.map((a) => ({ id: a.id, level: a.level, title: a.title, detail: a.detail })));
+  const [documents, setDocuments] = useState<DocView[]>(homeDocuments.map((d) => ({ id: d.id, name: d.name, category: d.category, status: d.status })));
 
   useEffect(() => {
     let cancelled = false;
-
     const timeout = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error("délai dépassé (8s) — la requête vers Supabase n'a jamais répondu")), 8000);
     });
-
     Promise.race([getOrCreateHomeProject(), timeout])
       .then((result) => {
         if (cancelled) return;
@@ -49,41 +41,21 @@ export function useHomeProject() {
         setDebugError(`exception: ${err instanceof Error ? err.message : String(err)}`);
         setLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  const progress = steps.length
-    ? Math.round((steps.filter((s) => s.status === "done").length / steps.length) * 100)
-    : homeProject.progress;
-
+  const progress = steps.length ? Math.round((steps.filter((s) => s.status === "done").length / steps.length) * 100) : homeProject.progress;
   const currentStep = steps.find((s) => s.status === "current")?.step ?? homeProject.step;
 
   async function addDocument(name: string, category: string) {
     if (!demo && projectId) {
       const { document, error } = await addDocumentDb(projectId, { name, category });
-      if (document) {
-        setDocuments((prev) => [...prev, { id: document.id, name: document.name, category: document.category ?? "", status: document.status }]);
-      } else if (error) {
-        setDebugError(`ajout document: ${error}`);
-      }
+      if (document) setDocuments((prev) => [...prev, { id: document.id, name: document.name, category: document.category ?? "", status: document.status }]);
+      else if (error) setDebugError(`ajout document: ${error}`);
     } else {
       setDocuments((prev) => [...prev, { id: `local-${Date.now()}`, name, category, status: "conforme" }]);
     }
   }
 
-  return {
-    loading,
-    demo,
-    debugError,
-    address,
-    builder: homeProject.builder,
-    steps,
-    alerts,
-    addDocument,
-    documents,
-    progress,
-    currentStep,
-  };
+  return { loading, demo, debugError, address, builder: homeProject.builder, steps, alerts, addDocument, documents, progress, currentStep };
 }

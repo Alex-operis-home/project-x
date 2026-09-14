@@ -3,15 +3,9 @@ import { getRule } from "./rules";
 
 function alertFromRule(id: string, ruleId: string, overrideTitle?: string): Alert {
   const rule = getRule(ruleId)!;
-  return {
-    id,
-    level: rule.level,
-    title: overrideTitle ?? rule.condition,
-    detail: `Règle Opéris ${rule.id} — ${rule.advice}`,
-  };
+  return { id, level: rule.level, title: overrideTitle ?? rule.condition, detail: `Règle Opéris ${rule.id} — ${rule.advice}` };
 }
 
-// ===================== ESPACE HOME (particulier) =====================
 export const homeUser = { firstName: "Alexandre" };
 
 export const homeProject = {
@@ -28,11 +22,7 @@ export const homeProject = {
   },
 };
 
-export const homeBudget = {
-  planned: 245000,
-  spent: 138400,
-  remaining: 106600,
-};
+export const homeBudget = { planned: 245000, spent: 138400, remaining: 106600 };
 
 export const homeAlerts: Alert[] = [
   alertFromRule("1", "admin-05", "Attestation décennale du maçon manquante"),
@@ -50,12 +40,9 @@ export const homeAlerts: Alert[] = [
 ];
 
 export const homeFrise = [
-  { icon: "🌱", label: "Terrain", done: true },
-  { icon: "🧱", label: "Fondations", done: true },
-  { icon: "🧱", label: "Murs", done: true },
-  { icon: "🏗️", label: "Charpente", done: false, current: true },
-  { icon: "🪟", label: "Menuiseries", done: false },
-  { icon: "🎨", label: "Finitions", done: false },
+  { icon: "🌱", label: "Terrain", done: true }, { icon: "🧱", label: "Fondations", done: true },
+  { icon: "🧱", label: "Murs", done: true }, { icon: "🏗️", label: "Charpente", done: false, current: true },
+  { icon: "🪟", label: "Menuiseries", done: false }, { icon: "🎨", label: "Finitions", done: false },
   { icon: "🔑", label: "Remise des clés", done: false },
 ];
 
@@ -94,15 +81,8 @@ export const homePlanning = [
   { step: "Livraison", status: "todo", advice: "Conservez tous les documents (garanties, PV de réception) : ils servent pendant 10 ans." },
 ];
 
-// ===================== ESPACE PRO (constructeur) =====================
 export const proUser = { firstName: "Alexandre" };
-
-export const proStats = {
-  chantiers: 25,
-  alertesImportantes: 3,
-  caPrevisionnel: "6 240 000 €",
-  margeMoyenne: "16,8 %",
-};
+export const proStats = { chantiers: 25, alertesImportantes: 3, caPrevisionnel: "6 240 000 €", margeMoyenne: "16,8 %" };
 
 export const proAlerts: Alert[] = [
   alertFromRule("1", "constr-02", "Chantier Martin : retard fournisseur"),
@@ -134,15 +114,8 @@ export const proTasksAuto = [
   "Mail fournisseur — confirmation nouvelle date charpente",
 ];
 
-// ===================== ESPACE PROMOTEUR =====================
 export const promoteurUser = { firstName: "Sophie" };
-
-export const promoteurStats = {
-  operations: 9,
-  caPrevisionnel: "14 200 000 €",
-  margeMoyenne: "21,6 %",
-  alertes: 3,
-};
+export const promoteurStats = { operations: 9, caPrevisionnel: "14 200 000 €", margeMoyenne: "21,6 %", alertes: 3 };
 
 export const promoteurAlerts: Alert[] = [
   alertFromRule("1", "constr-02", "Retard VRD — Lotissement Val Fleuri"),
